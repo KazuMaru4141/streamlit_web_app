@@ -46,6 +46,7 @@ if currentTrack != None:
     artistID = currentTrack["item"]["artists"][0]["id"]
     albumName = currentTrack["item"]["album"]["name"]
     albumID = currentTrack["item"]["album"]["id"]
+    albumURL = currentTrack["item"]["album"]["external_urls"]["spotify"]
     releaseDate = currentTrack["item"]["album"]["release_date"]
     albumImg = currentTrack["item"]["album"]["images"][0]["url"]
 
@@ -65,6 +66,8 @@ if currentTrack != None:
         st.text(f'■ Track Name : {trackName}')
         st.text(f'■ Release Date : {releaseDate}')
     
+    st.text(f'{albumURL}')
+    albumURL
     if artistInfo["genres"] != []:
         st.text(f'■ Genre : {", ".join(artistInfo["genres"])}')
     else:
