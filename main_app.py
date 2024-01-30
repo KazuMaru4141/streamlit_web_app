@@ -55,6 +55,8 @@ with st.form(key='prifile_form'):
             st.text(f'Genre : {", ".join(artistInfo["genres"])}')
         else:
             st.text(f'Genre : -')
+            
+        spotify.artist_related_artists(albumInfo["artists"][0]["id"])
         
         
         
