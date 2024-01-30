@@ -8,9 +8,8 @@ from spotipy.oauth2 import SpotifyOAuth
 
 import datetime
 
-"""
-Spotify Authorization
-"""
+
+#Spotify Authorization
 MY_USER_NAME = "kazmaru"
 MY_ID = '38537f7c27b84471b27a018c58a582b5'
 MY_SECRET = '8aea8e2036ab4e78a8d10f6cab425a18'
@@ -53,14 +52,15 @@ with st.form(key='prifile_form'):
         artistInfo = spotify.artist(albumInfo["artists"][0]["id"])
         
         if artistInfo["genres"] != []:
-            st.text(f'{", ".join(artistInfo["genres"])}')
+            st.text(f'Genre : {", ".join(artistInfo["genres"])}')
         else:
-            st.text(f'Genre = -')
+            st.text(f'Genre : -')
         
         
         
         dt_now = dt_now = datetime.datetime.now()
         year = str(dt_now.year)
+        st.text(f'')
         st.text(f'#NewAlbum_{year}')
         st.text(f'#WeeklyFeaturedAlbum')
         st.text(f'#今週良さそう')
