@@ -66,7 +66,6 @@ if currentTrack != None:
         st.text(f'■ Track Name : {trackName}')
         st.text(f'■ Release Date : {releaseDate}')
     
-    st.text(f'{albumURL}')
     albumURL
     if artistInfo["genres"] != []:
         st.text(f'■ Genre : {", ".join(artistInfo["genres"])}')
