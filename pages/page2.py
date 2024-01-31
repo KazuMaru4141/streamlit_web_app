@@ -27,8 +27,12 @@ gs = GspreadCtrl
 with st.form(key='prifile_form'):
     udpate_btn = st.form_submit_button('update')
     if udpate_btn == True:
-        ws, wb, LikedInfo = gs.connect_gspread(gs.LIKED_SONGS)
-        ws, wb, AlbumInfo = gs.connect_gspread(gs.SPOTIFY_SAVED_ALBUMS_OLD)
+        
+        SP_SHEET_KEY = st.secrets.SP_SHEET_KEY.Key_LikedSongs
+        ws, wb, LikedInfo = gs.connect_gspread(SP_SHEET_KEY)
+        
+        SP_SHEET_KEY = st.secrets.SP_SHEET_KEY.key_SpotifySavedAlbumOld
+        ws, wb, AlbumInfo = gs.connect_gspread(SP_SHEET_KEY)
         #print(AlbumInfo)
         CountedAlbum = CountLikedSongs(LikedInfo)
         

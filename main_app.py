@@ -58,7 +58,9 @@ with st.form(key='prifile_form2'):
     
     if (update_btn == True):
         st.text(f'{date}')
-        ws, wb, SpreadInfo = gs.connect_gspread(gs.SPOTIFY_SAVED_ALBUMS)
+        
+        SP_SHEET_KEY = st.secrets.SP_SHEET_KEY.key_SpotifySavedAlbums
+        ws, wb, SpreadInfo = gs.connect_gspread(SP_SHEET_KEY)
         
         featuredAlbum = []
         for album in SpreadInfo:
@@ -70,9 +72,9 @@ with st.form(key='prifile_form2'):
                     album["ReleaseDate"]
                     
                 ])
-                
-        df = pd.DataFrame(featuredAlbum, columns=["ID", "AlbumName", "ArtistName", "Release"])
-        if featuredAlbum != None:
+        
+        if featuredAlbum != None:   
+            df = pd.DataFrame(featuredAlbum, columns=["ID", "AlbumName", "ArtistName", "Release"])
             st.write(df)
                 #st.text(f'{album["AlbumName"]} by {album["ArtistName"]}, {album["AlbumID"]}')
     
