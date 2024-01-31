@@ -3,3 +3,4 @@ pandas==1.2.3
 spotipy==2.23.0
 streamlit-autorefresh==1.0.1
 gspread==5.7.2
+oauth2client==1.2.0
