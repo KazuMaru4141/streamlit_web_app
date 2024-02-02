@@ -99,10 +99,10 @@ with st.form(key='prifile_form'):
         dfThisYear = pd.DataFrame(rankingThisYear, columns=["AlbumName", "ArtistName", "TrackNumber", "LikedCount", "Rate"])
 
         st.text(f'2024ランキング')
-        st.write(dfThisYear)
+        st.dataframe(dfThisYear)
         
         st.text(f'総合ランキング')
-        st.write(df)
+        st.dataframe(df)
         
         
         #for album in sortedList:

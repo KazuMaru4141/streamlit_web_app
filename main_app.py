@@ -75,7 +75,8 @@ with st.form(key='prifile_form2'):
         
         if featuredAlbum != None:   
             df = pd.DataFrame(featuredAlbum, columns=["ID", "AlbumName", "ArtistName", "Release"])
-            st.write(df)
+            #st.write(df)
+            st.dataframe(df)
                 #st.text(f'{album["AlbumName"]} by {album["ArtistName"]}, {album["AlbumID"]}')
     
         
