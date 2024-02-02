@@ -24,7 +24,7 @@ with st.form(key='prifile_form'):
                 #print("fdsfdsfdfsdfdsfdsfdsfdsfd")
                 #print(img)
                 st.image(img, width=200)
-                st.text(f'Album Name : {album["AlbumName"]}')
+                st.text(f'Album Name : {album["AlbumName"]} ({album["Type"]})')
                 st.text(f'Artist Name : {album["ArtistName"]}')
                 album["AlbumURL"]
                 st.text(f'Genre : {album["Genre"]}')
