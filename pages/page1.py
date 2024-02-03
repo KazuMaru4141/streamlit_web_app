@@ -92,22 +92,24 @@ if currentTrack != None:
             gs = GspreadCtrl
             SP_SHEET_KEY = st.secrets.SP_SHEET_KEY.Key_LikedSongs
             ws, wb, LikedInfo = gs.connect_gspread(SP_SHEET_KEY)
+            list_of_list = ws.col_values(2)
             
-            dt_now = dt_now = datetime.datetime.now()
-            today = str(dt_now.year) + "-" + str(dt_now.month) + "-" + str(dt_now.day)
-            appendList = []
-            appendList.append([
-                today,
-                st.session_state.trackInfo["trackName"],
-                st.session_state.trackInfo["albumName"],
-                st.session_state.trackInfo["artistName"],
-                st.session_state.trackInfo["albumImg"],
-                st.session_state.trackInfo["trackID"],
-                "",
-                st.session_state.trackInfo["trackURL"]
-            ])
-            print(appendList)
-            ws.append_rows(appendList)
+            if st.session_state.trackInfo["trackName"] not in list_of_list: 
+                dt_now = dt_now = datetime.datetime.now()
+                today = str(dt_now.year) + "-" + str(dt_now.month) + "-" + str(dt_now.day)
+                appendList = []
+                appendList.append([
+                    today,
+                    st.session_state.trackInfo["trackName"],
+                    st.session_state.trackInfo["albumName"],
+                    st.session_state.trackInfo["artistName"],
+                    st.session_state.trackInfo["albumImg"],
+                    st.session_state.trackInfo["trackID"],
+                    "",
+                    st.session_state.trackInfo["trackURL"]
+                ])
+                #print("Added!")
+                ws.append_rows(appendList)
             
             
         if save_btn == True:
