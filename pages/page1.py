@@ -1,6 +1,7 @@
 import streamlit as st
 from PIL import Image
 from streamlit_autorefresh import st_autorefresh
+from SpreadSheetAPI import GspreadCtrl
 
 import spotipy
 import spotipy.util as util
@@ -18,8 +19,10 @@ if 'trackInfo' not in st.session_state:
     st.session_state.trackInfo = {}
     st.session_state.trackInfo["trackName"] = ""
     st.session_state.trackInfo["trackID"] = ""
+    st.session_state.trackInfo["trackURL"] = ""
     st.session_state.trackInfo["artistName"] = ""
     st.session_state.trackInfo["artistID"] = ""
+    st.session_state.trackInfo["artistURL"] = ""
     st.session_state.trackInfo["albumName"] = ""
     st.session_state.trackInfo["albumID"] = ""
     st.session_state.trackInfo["albumURL"] = ""
@@ -36,8 +39,10 @@ if currentTrack != None:
     if st.session_state.trackInfo["trackName"] != currentTrack["item"]["name"]:        
         st.session_state.trackInfo["trackName"] = currentTrack["item"]["name"]
         st.session_state.trackInfo["trackID"] = currentTrack["item"]["id"]
+        st.session_state.trackInfo["trackURL"] = currentTrack["item"]["external_urls"]["spotify"]
         st.session_state.trackInfo["artistName"] = currentTrack["item"]["artists"][0]["name"]
         st.session_state.trackInfo["artistID"] = currentTrack["item"]["artists"][0]["id"]
+        st.session_state.trackInfo["artistURL"] = currentTrack["item"]["artists"][0]["external_urls"]["spotify"]
         st.session_state.trackInfo["albumName"] = currentTrack["item"]["album"]["name"]
         st.session_state.trackInfo["albumID"] = currentTrack["item"]["album"]["id"]
         st.session_state.trackInfo["albumURL"] = currentTrack["item"]["album"]["external_urls"]["spotify"]
@@ -54,10 +59,11 @@ if currentTrack != None:
             related.append(appendList)
         st.session_state.trackInfo["related"] = related
         
-    with col1:
+    with st.form(key='prifile_form'):
         st.image(st.session_state.trackInfo["albumImg"], width=200)
-        
-    with col2:
+        like_btn = st.form_submit_button('like')
+        save_btn = st.form_submit_button('save album')
+            
         st.write(f'■ Album Name : {st.session_state.trackInfo["albumName"]}')
         st.write(f'{st.session_state.trackInfo["albumID"]}')
         st.write(f'■ Artist Name : {st.session_state.trackInfo["artistName"]}')
@@ -65,22 +71,79 @@ if currentTrack != None:
         st.write(f'■ Track Name : {st.session_state.trackInfo["trackName"]}')
         st.write(f'{st.session_state.trackInfo["trackID"]}')
         st.write(f'■ Release Date : {st.session_state.trackInfo["releaseDate"]}')
-        
-    st.session_state.trackInfo["albumURL"]
-    if st.session_state.trackInfo["genre"] != []:
-        st.write(f'■ Genre : {", ".join(st.session_state.trackInfo["genre"])}')
-    else:
-        st.write(f'■ Genre : -')
-    st.write(f'■ Related Artists')
-    count = 0
-    output = []
+            
+        st.session_state.trackInfo["albumURL"]
+        if st.session_state.trackInfo["genre"] != []:
+            st.write(f'■ Genre : {", ".join(st.session_state.trackInfo["genre"])}')
+        else:
+            st.write(f'■ Genre : -')
+        st.write(f'■ Related Artists')
+        count = 0
+        output = []
 
-    info = []
-    for artist in st.session_state.trackInfo["related"]:
-        link = artist[1]
-        #print(link)
-        st.write(f'{artist[0]}')
-        st.markdown(link, unsafe_allow_html=True) 
+        info = []
+        for artist in st.session_state.trackInfo["related"]:
+            link = artist[1]
+            #print(link)
+            st.write(f'{artist[0]}')
+            st.markdown(link, unsafe_allow_html=True)
+        
+        if like_btn == True:
+            gs = GspreadCtrl
+            SP_SHEET_KEY = st.secrets.SP_SHEET_KEY.Key_LikedSongs
+            ws, wb, LikedInfo = gs.connect_gspread(SP_SHEET_KEY)
+            
+            dt_now = dt_now = datetime.datetime.now()
+            today = str(dt_now.year) + "-" + str(dt_now.month) + "-" + str(dt_now.day)
+            appendList = []
+            appendList.append([
+                today,
+                st.session_state.trackInfo["trackName"],
+                st.session_state.trackInfo["albumName"],
+                st.session_state.trackInfo["artistName"],
+                st.session_state.trackInfo["albumImg"],
+                st.session_state.trackInfo["trackID"],
+                "",
+                st.session_state.trackInfo["trackURL"]
+            ])
+            print(appendList)
+            ws.append_rows(appendList)
+            
+            
+        if save_btn == True:
+            gs = GspreadCtrl
+            SP_SHEET_KEY = st.secrets.SP_SHEET_KEY.key_SpotifySavedAlbums
+            ws, wb, SpreadInfo = gs.connect_gspread(SP_SHEET_KEY)
+            dt_now = dt_now = datetime.datetime.now()
+            today = str(dt_now.year) + "-" + str(dt_now.month) + "-" + str(dt_now.day)
+            appendList = []
+            appendList.append([
+                today,
+                "",
+                st.session_state.trackInfo["albumName"],
+                st.session_state.trackInfo["artistName"],
+                st.session_state.trackInfo["albumImg"],
+                "",
+                st.session_state.trackInfo["albumID"],
+                st.session_state.trackInfo["albumURL"],
+                st.session_state.trackInfo["artistID"],
+                st.session_state.trackInfo["artistURL"],
+                "",
+                0,
+                0,
+                "",
+                "",
+                "",
+                "",
+                "",
+                st.session_state.trackInfo["releaseDate"],
+                ", ".join(st.session_state.trackInfo["genre"]),
+                ""
+            ])
+            print(appendList)
+            ws.append_rows(appendList)
+            
+            
         
 else:
     st.text(f'Track is not playing')
