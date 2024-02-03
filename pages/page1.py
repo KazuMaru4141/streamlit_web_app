@@ -17,6 +17,7 @@ col1, col2 = st.columns(2)
 if 'trackInfo' not in st.session_state:
     st.session_state.trackInfo = {}
     st.session_state.trackInfo["trackName"] = ""
+    st.session_state.trackInfo["trackID"] = ""
     st.session_state.trackInfo["artistName"] = ""
     st.session_state.trackInfo["artistID"] = ""
     st.session_state.trackInfo["albumName"] = ""
@@ -34,6 +35,7 @@ currentTrack = spotify.current_user_playing_track()
 if currentTrack != None:
     if st.session_state.trackInfo["trackName"] != currentTrack["item"]["name"]:        
         st.session_state.trackInfo["trackName"] = currentTrack["item"]["name"]
+        st.session_state.trackInfo["trackID"] = currentTrack["item"]["id"]
         st.session_state.trackInfo["artistName"] = currentTrack["item"]["artists"][0]["name"]
         st.session_state.trackInfo["artistID"] = currentTrack["item"]["artists"][0]["id"]
         st.session_state.trackInfo["albumName"] = currentTrack["item"]["album"]["name"]
@@ -57,8 +59,11 @@ if currentTrack != None:
         
     with col2:
         st.write(f'■ Album Name : {st.session_state.trackInfo["albumName"]}')
+        st.write(f'{st.session_state.trackInfo["albumID"]}')
         st.write(f'■ Artist Name : {st.session_state.trackInfo["artistName"]}')
+        st.write(f'{st.session_state.trackInfo["artistID"]}')
         st.write(f'■ Track Name : {st.session_state.trackInfo["trackName"]}')
+        st.write(f'{st.session_state.trackInfo["trackID"]}')
         st.write(f'■ Release Date : {st.session_state.trackInfo["releaseDate"]}')
         
     st.session_state.trackInfo["albumURL"]
