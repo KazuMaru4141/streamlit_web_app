@@ -54,10 +54,12 @@ with st.form(key='prifile_form'):
         
 with st.form(key='prifile_form2'):
     date = st.text_input('Date')
+    dt_now = dt_now = datetime.datetime.now()
+    today = str(dt_now.year) + "-" + str(dt_now.month) + "-" + str(dt_now.day)
+    st.text(f'{today}')
     update_btn = st.form_submit_button('update')
     
     if (update_btn == True):
-        st.text(f'{date}')
         
         SP_SHEET_KEY = st.secrets.SP_SHEET_KEY.key_SpotifySavedAlbums
         ws, wb, SpreadInfo = gs.connect_gspread(SP_SHEET_KEY)
