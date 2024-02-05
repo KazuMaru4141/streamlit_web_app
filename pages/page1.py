@@ -131,8 +131,10 @@ if currentTrack != None:
     st.button('♥️', on_click=onclickLiked)
     st.button('✅', on_click=onclickSaved)
 
-    st.page_link(st.session_state.trackInfo["albumURL"], label=st.session_state.trackInfo["trackName"])
-    st.page_link(st.session_state.trackInfo["artistURL"], label=st.session_state.trackInfo["artistName"])
+    st.write(st.session_state.trackInfo["trackName"])
+    st.write(st.session_state.trackInfo["artistName"])
+#    st.page_link(st.session_state.trackInfo["albumURL"], label=st.session_state.trackInfo["trackName"])
+#    st.page_link(st.session_state.trackInfo["artistURL"], label=st.session_state.trackInfo["artistName"])
         
     st.markdown('##### Genre')
     if st.session_state.trackInfo["genre"] != []:
@@ -145,7 +147,8 @@ if currentTrack != None:
     for artist in st.session_state.trackInfo["related"]:
         link = artist[1]
         linkLabel = artist[0]
-        st.page_link(link, label=linkLabel)
+        #st.page_link(link, label=linkLabel)
+        st.write(artist[0])
                 
 else:
     st.text(f'Track is not playing')
