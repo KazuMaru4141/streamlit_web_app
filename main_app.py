@@ -55,8 +55,7 @@ with st.form(key='prifile_form'):
 with st.form(key='prifile_form2'):
     dt_now = dt_now = datetime.datetime.now()
     today = str(dt_now.year) + "-" + str(dt_now.month) + "-" + str(dt_now.day)
-    
-    st.text(f'{today}')
+    date = st.text_input('Date', value=today)
     update_btn = st.form_submit_button('update')
     
     if (update_btn == True):
