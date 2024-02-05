@@ -32,3 +32,9 @@ class SpotifyCtrl:
     def get_related_artistInfo(spotify, artistID):
         relatedArtistInfo = spotify.artist_related_artists(artistID)
         return relatedArtistInfo
+    
+    def addLikedTrackToPlaylist(spotify, trackUri):
+        playlist_url = "https://open.spotify.com/playlist/2301nL49ZNwH1ntcUrfDf1?si=7a0eae278a3c44a6"
+        trackList = []
+        trackList.append(trackUri)
+        spotify.user_playlist_add_tracks(st.secrets.SPOTIFY_AUTH.my_user_name, playlist_url, trackList)
