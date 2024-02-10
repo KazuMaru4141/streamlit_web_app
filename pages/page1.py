@@ -12,6 +12,9 @@ from SpotifyAPI import SpotifyCtrl
 
 import datetime
 
+sp = SpotifyCtrl
+auth_manager, spotify = sp.create_spotify()
+
 def initSessionState(st):
     if 'trackInfo' not in st.session_state:
         st.session_state.trackInfo = {}
@@ -73,13 +76,30 @@ def onclickLiked():
             st.session_state.trackInfo["albumImg"],
             st.session_state.trackInfo["trackID"],
             "",
-            st.session_state.trackInfo["trackURL"]
+            st.session_state.trackInfo["trackURL"],
+            str(1),
         ])
         #print("Added!")
         ws.append_rows(appendList)
         sp.addLikedTrackToPlaylist(spotify, st.session_state.trackInfo["trackURI"])
         st.write(f'Successfully Added')
     else:
+        #impression = int(LikedInfo[st.session_state.trackInfo["Impression"]])
+        #impression = impression + 1
+        
+        cell = ws.find(st.session_state.trackInfo["trackName"])
+        #print(cell)
+        #print(cell.row)
+        #print(ws.cell(cell.row, 9))
+        row = int(cell.row)
+        #print(ws.cell(row, 9).value)
+        if (ws.cell(row, 9).value == None):
+            ws.update_cell(cell.row, 9, "1")
+        else:
+            impression = int(ws.cell(row, 9).value)
+            impression = impression + 1
+            ws.update_cell(cell.row, 9, impression)
+        #ws.update_cell()
         st.write(f'Already Added')
 
 def onclickSaved():        
@@ -91,7 +111,7 @@ def onclickSaved():
     appendList = []
     appendList.append([
         today,
-        "",
+        0,
         st.session_state.trackInfo["albumName"],
         st.session_state.trackInfo["artistName"],
         st.session_state.trackInfo["albumImg"],
@@ -114,25 +134,34 @@ def onclickSaved():
     ])
     print(appendList)
     ws.append_rows(appendList)
-    print(f'Successfully Saved!')
+    st.write(f'Successfully Saved!')
+#    print(f'Successfully Saved!')
+
+def onclickNext():
+    print("-----------------------------------------")
+    device = spotify.devices()
+    print(device)
+    spotify.next()
+#   # sp.skipTrack(spotify)
+    #print("skipped")
 
 ############### Main #######################################
 st.write(f'#### Now Playing')
 initSessionState(st)
 
-sp = SpotifyCtrl
-auth_manager, spotify = sp.create_spotify()
 currentTrack = spotify.current_user_playing_track()
 cols = st.columns(2)
-
+#print(currentTrack)
 if currentTrack != None:
     updateSessionState(st)
     st.image(st.session_state.trackInfo["albumImg"], width=100)
     st.button('♥️', on_click=onclickLiked)
     st.button('✅', on_click=onclickSaved)
+    #st.button('⏭️', on_click=onclickNext)
 
     st.write(st.session_state.trackInfo["trackName"])
     st.write(st.session_state.trackInfo["artistName"])
+    st.write(st.session_state.trackInfo["releaseDate"])
 #    st.page_link(st.session_state.trackInfo["albumURL"], label=st.session_state.trackInfo["trackName"])
 #    st.page_link(st.session_state.trackInfo["artistURL"], label=st.session_state.trackInfo["artistName"])
         

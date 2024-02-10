@@ -38,3 +38,6 @@ class SpotifyCtrl:
         trackList = []
         trackList.append(trackUri)
         spotify.user_playlist_add_tracks(st.secrets.SPOTIFY_AUTH.my_user_name, playlist_url, trackList)
+
+    #def skipTrack(spotify):
+    #    spotify.
