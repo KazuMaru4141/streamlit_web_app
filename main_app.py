@@ -48,7 +48,7 @@ with st.form(key='prifile_form'):
         st.text(f'')
         st.text(f'#NewAlbum_{year}')
         st.text(f'#WeeklyFeaturedAlbum')
-        st.text(f'#今週良さそう')
+#        st.text(f'#今週良さそう')
         st.text(f'#新譜')
         st.text(f'{albumInfo["external_urls"]["spotify"]}')
         
