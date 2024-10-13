@@ -32,6 +32,10 @@ def initSessionState(st):
         st.session_state.trackInfo["albumImg"] = ""
         st.session_state.trackInfo["genre"] = ""
         st.session_state.trackInfo["related"] = []
+        st.session_state.trackInfo["artistImg"] = ""
+        st.session_state.trackInfo["artistPopularity"] = ""
+        st.session_state.trackInfo["type"] = ""
+        st.session_state.trackInfo["total_tracks"] = ""
 
 def updateSessionState(st):
     if st.session_state.trackInfo["trackName"] != currentTrack["item"]["name"]:        
@@ -47,6 +51,8 @@ def updateSessionState(st):
         st.session_state.trackInfo["albumURL"] = currentTrack["item"]["album"]["external_urls"]["spotify"]
         st.session_state.trackInfo["releaseDate"] = currentTrack["item"]["album"]["release_date"]
         st.session_state.trackInfo["albumImg"] = currentTrack["item"]["album"]["images"][0]["url"]
+        st.session_state.trackInfo["type"] = currentTrack["item"]["album"]["type"]
+        st.session_state.trackInfo["total_tracks"] = currentTrack["item"]["album"]["total_tracks"]
 
         artistInfo = spotify.artist(st.session_state.trackInfo["artistID"])
         relatedArtists = spotify.artist_related_artists(st.session_state.trackInfo["artistID"])
@@ -57,6 +63,8 @@ def updateSessionState(st):
             appendList = [artist["name"], artist["external_urls"]["spotify"]]
             related.append(appendList)
         st.session_state.trackInfo["related"] = related
+        st.session_state.trackInfo["artistImg"] = artist["images"][0]["url"]
+        st.session_state.trackInfo["artistPopularity"] = artist["popularity"]
 
 def onclickLiked():
     gs = GspreadCtrl
@@ -115,19 +123,19 @@ def onclickSaved():
         st.session_state.trackInfo["albumName"],
         st.session_state.trackInfo["artistName"],
         st.session_state.trackInfo["albumImg"],
-        "",
+        st.session_state.trackInfo["artistImg"],
         st.session_state.trackInfo["albumID"],
         st.session_state.trackInfo["albumURL"],
         st.session_state.trackInfo["artistID"],
         st.session_state.trackInfo["artistURL"],
-        "",
+        st.session_state.trackInfo["total_tracks"],
         0,
         0,
         "",
         "",
+        st.session_state.trackInfo["artistPopularity"],
         "",
-        "",
-        "",
+        st.session_state.trackInfo["type"],
         st.session_state.trackInfo["releaseDate"],
         ", ".join(st.session_state.trackInfo["genre"]),
         ""
