@@ -46,7 +46,7 @@ class pylastCtrl:
         
     def getPlayCountToday(user):
         ja = get_localzone()
-        current_time = datetime.datetime.now(tzinfo=pytz.timezone("EST"))
+        current_time = datetime.datetime.now(tz=pytz.timezone("EST"))
         
         start_time = datetime.datetime(current_time.year, current_time.month, current_time.day, 0, 0, 0, 0)
         
