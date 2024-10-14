@@ -19,17 +19,17 @@ with st.form(key='prifile_form'):
     if (submit_btn == True):
         albumInfo = sp.get_albumInfo(spotify, albumID)
         
-        st.write(f'{albumInfo["name"]} by {albumInfo["artists"][0]["name"]}')
-        st.write(f'{albumInfo["release_date"]}')
+        st.text(f'{albumInfo["name"]} by {albumInfo["artists"][0]["name"]}')
+        st.text(f'{albumInfo["release_date"]}')
         # st.text(f'アルバム名 : {albumInfo["name"]}')
         # st.text(f'アーティスト名 : {albumInfo["artists"][0]["name"]}')
         
         
         artistInfo = sp.get_artistInfo(spotify, albumInfo["artists"][0]["id"])
         if artistInfo["genres"] != []:
-            st.write(f'ジャンル:{", ".join(artistInfo["genres"])}')
+            st.text(f'ジャンル:{", ".join(artistInfo["genres"])}')
         else:
-            st.write(f'ジャンル:-')
+            st.text(f'ジャンル:-')
             
         relatedArtistInfo = sp.get_related_artistInfo(spotify, albumInfo["artists"][0]["id"])
         count = 0
@@ -41,18 +41,18 @@ with st.form(key='prifile_form'):
                 break
         
         if outRelatedArtist != []:
-            st.write(f'関連アーティスト:{", ".join(outRelatedArtist)}')
+            st.text(f'関連アーティスト:{", ".join(outRelatedArtist)}')
         else:
-            st.write(f'関連アーティスト:-')
+            st.text(f'関連アーティスト:-')
         
         dt_now = dt_now = datetime.datetime.now()
         year = str(dt_now.year)
         #st.write(f'')
-        st.write(f'#NewAlbum_{year}')
-        st.write(f'#WeeklyFeaturedAlbum')
+        st.text(f'#NewAlbum_{year}')
+        st.text(f'#WeeklyFeaturedAlbum')
 #        st.text(f'#今週良さそう')
-        st.write(f'#新譜')
-        st.write(f'{albumInfo["external_urls"]["spotify"]}')
+        st.text(f'#新譜')
+        st.text(f'{albumInfo["external_urls"]["spotify"]}')
         
 with st.form(key='prifile_form2'):
     dt_now = dt_now = datetime.datetime.now()
