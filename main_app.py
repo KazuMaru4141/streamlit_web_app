@@ -47,7 +47,7 @@ with st.form(key='prifile_form'):
         
         dt_now = dt_now = datetime.datetime.now()
         year = str(dt_now.year)
-        st.write(f'')
+        #st.write(f'')
         st.write(f'#NewAlbum_{year}')
         st.write(f'#WeeklyFeaturedAlbum')
 #        st.text(f'#今週良さそう')
