@@ -15,18 +15,6 @@ import datetime
 sp = SpotifyCtrl
 auth_manager, spotify = sp.create_spotify()
 
-def getGenres(artistGenre):
-    genres = ""
-    if len(artistGenre) == 0 :
-        genres = "-"
-    else:
-        genres = str(artistGenre)
-        genres = genres.replace('[', '')
-        genres = genres.replace(']', '')
-        genres = genres.replace("'", '')
-    
-    return genres
-
 def initSessionState(st):
     if 'trackInfo' not in st.session_state:
         st.session_state.trackInfo = {}
@@ -68,7 +56,7 @@ def updateSessionState(st):
 
         artistInfo = spotify.artist(st.session_state.trackInfo["artistID"])
         relatedArtists = spotify.artist_related_artists(st.session_state.trackInfo["artistID"])
-        st.session_state.trackInfo["genre"] = getGenres(artistInfo["genres"])
+        st.session_state.trackInfo["genre"] = artistInfo["genres"]
 
         related = []
         for artist in relatedArtists["artists"]:
