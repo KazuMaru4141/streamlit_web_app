@@ -2,6 +2,7 @@ import streamlit as st
 from PIL import Image
 from streamlit_autorefresh import st_autorefresh
 from SpreadSheetAPI import GspreadCtrl
+from pylastCtrl import pylastCtrl
 
 import spotipy
 import spotipy.util as util
@@ -14,6 +15,10 @@ import datetime
 
 sp = SpotifyCtrl
 auth_manager, spotify = sp.create_spotify()
+
+pc = pylastCtrl
+lastfm_network = pc.getNetwork()
+lastfm_user = pc.getUser(lastfm_network)
 
 def initSessionState(st):
     if 'trackInfo' not in st.session_state:
@@ -158,6 +163,12 @@ st.write(f'#### Now Playing')
 initSessionState(st)
 
 currentTrack = spotify.current_user_playing_track()
+
+now_playing = pc.getNowPlaying(lastfm_user)
+artistPlayCount = pc.getArtistPlayCount(lastfm_user, now_playing)
+albumPlayCount = pc.getAlbumPlayCount(lastfm_user, now_playing)
+playCountToday = pc.getPlayCountToday(lastfm_user)
+
 cols = st.columns(2)
 #print(currentTrack)
 if currentTrack != None:
@@ -170,6 +181,12 @@ if currentTrack != None:
     st.write(st.session_state.trackInfo["trackName"])
     st.write(st.session_state.trackInfo["artistName"])
     st.write(st.session_state.trackInfo["releaseDate"])
+    
+    
+    st.write(f'artist play count : {artistPlayCount}')
+    st.write(f'album play count : {albumPlayCount}')
+    st.write(f'todays play count : {playCountToday}')
+    
 #    st.page_link(st.session_state.trackInfo["albumURL"], label=st.session_state.trackInfo["trackName"])
 #    st.page_link(st.session_state.trackInfo["artistURL"], label=st.session_state.trackInfo["artistName"])
         
