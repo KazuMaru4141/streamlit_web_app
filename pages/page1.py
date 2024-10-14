@@ -197,6 +197,12 @@ if currentTrack != None:
     else:
         st.write(f'-')
 
+    st.write(f'artist {artistPlayCount}')
+    st.write(f'album {albumPlayCount}')
+    st.write(f'track {track_play_count}')
+    st.write(f'today  {playCountToday}')
+    st.write(f'total scrobbles {OverallPlayCount}')
+
     st.markdown('##### Related Artists')
     
     for artist in st.session_state.trackInfo["related"]:
@@ -205,13 +211,13 @@ if currentTrack != None:
         #st.page_link(link, label=linkLabel)
         st.write(artist[0])
     
-    st.sidebar.markdown("## Scrobbles")
-    st.sidebar.write(f'artist {artistPlayCount}')
-    st.sidebar.write(f'album {albumPlayCount}')
-    st.sidebar.write(f'track {track_play_count}')
+    # st.sidebar.markdown("## Scrobbles")
+    # st.sidebar.write(f'artist {artistPlayCount}')
+    # st.sidebar.write(f'album {albumPlayCount}')
+    # st.sidebar.write(f'track {track_play_count}')
     
-    st.sidebar.write(f'today  {playCountToday}')
-    st.sidebar.write(f'total scrobbles {OverallPlayCount}')
+    # st.sidebar.write(f'today  {playCountToday}')
+    # st.sidebar.write(f'total scrobbles {OverallPlayCount}')
 #    st.sidebar.write(f'total artists   {totalArtists}')
 #    st.sidebar.write(f'total albums    {totalAlbums}')
 #    st.sidebar.write(f'total tracks    {totalTracks}')
