@@ -164,32 +164,56 @@ initSessionState(st)
 
 currentTrack = spotify.current_user_playing_track()
 
-cols = st.columns(2)
+col1, col2, col3 = st.columns([2, 2, 6])
 #print(currentTrack)
 if currentTrack != None:
+    updateSessionState(st)
     now_playing = pc.getNowPlaying(lastfm_user)
     artistPlayCount = pc.getArtistPlayCount(lastfm_user, now_playing)
     albumPlayCount = pc.getAlbumPlayCount(lastfm_user, now_playing)
+    track_play_count = pc.getTrackPlayCount(lastfm_user, now_playing)
     playCountToday = pc.getPlayCountToday(lastfm_user)
     
-    updateSessionState(st)
-    st.image(st.session_state.trackInfo["albumImg"], width=100)
-    st.button('♥️', on_click=onclickLiked)
-    st.button('✅', on_click=onclickSaved)
-    #st.button('⏭️', on_click=onclickNext)
-
-    st.write(st.session_state.trackInfo["trackName"])
-    st.write(st.session_state.trackInfo["artistName"])
+    
+    with col1:
+        st.image(st.session_state.trackInfo["albumImg"], width=100)
+        
+    with col2:
+        st.button('♥️', on_click=onclickLiked)
+        st.button('✅', on_click=onclickSaved)
+    
+    col1, col2, col3 = st.columns([2, 2, 6])
+    with col1:
+        st.write(st.session_state.trackInfo["trackName"])
+    
+    with col2:
+        st.write(st.session_state.trackInfo["artistName"])
     st.write(st.session_state.trackInfo["releaseDate"])
     
+    st.markdown('##### Scrobbles')
+    col1, col2, col3, col4 = st.columns([1, 1, 1, 7])
     
-    st.write(f'artist play count : {artistPlayCount}')
-    st.write(f'album play count : {albumPlayCount}')
-    st.write(f'todays play count : {playCountToday}')
+    with col1:
+        st.write(f'artist')
     
-#    st.page_link(st.session_state.trackInfo["albumURL"], label=st.session_state.trackInfo["trackName"])
-#    st.page_link(st.session_state.trackInfo["artistURL"], label=st.session_state.trackInfo["artistName"])
-        
+    with col2:
+        st.write(f'album')
+
+    with col3:
+        st.write(f'track')
+    
+    col1, col2, col3, col4 = st.columns([1, 1, 1, 7])
+    with col1:
+        st.write(f'{artistPlayCount}')
+    
+    with col2:
+        st.write(f'{albumPlayCount}')
+
+    with col3:
+        st.write(f'{track_play_count}')
+    
+    st.write(f'today: {playCountToday}')
+    
     st.markdown('##### Genre')
     if st.session_state.trackInfo["genre"] != []:
         st.write(f'{", ".join(st.session_state.trackInfo["genre"])}')

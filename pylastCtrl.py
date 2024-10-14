@@ -37,6 +37,11 @@ class pylastCtrl:
         albumPlayCount = album.get_userplaycount()
         
         return albumPlayCount
+    
+    def getTrackPlayCount(user, nowPlaying):
+        TrackPlayCount = nowPlaying.get_userplaycount()
+        
+        return TrackPlayCount
         
     def getPlayCountToday(user):
         ja = get_localzone()
