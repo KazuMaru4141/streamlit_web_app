@@ -198,14 +198,13 @@ if currentTrack != None:
     else:
         st.write(f'-')
 
-#    st.markdown('##### Related Artists')
-
-    with st.expander("## Related Artists"):
-        for artist in st.session_state.trackInfo["related"]:
-            link = artist[1]
-            linkLabel = artist[0]
-            #st.page_link(link, label=linkLabel)
-            st.write(artist[0])
+    st.markdown('##### Related Artists')
+    
+    for artist in st.session_state.trackInfo["related"]:
+        link = artist[1]
+        linkLabel = artist[0]
+        #st.page_link(link, label=linkLabel)
+        st.write(artist[0])
     
     st.sidebar.markdown("## Scrobbles")
     st.sidebar.write(f'artist {artistPlayCount}')
