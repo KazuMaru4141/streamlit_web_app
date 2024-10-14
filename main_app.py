@@ -27,9 +27,9 @@ with st.form(key='prifile_form'):
         
         artistInfo = sp.get_artistInfo(spotify, albumInfo["artists"][0]["id"])
         if artistInfo["genres"] != []:
-            st.text(f'ジャンル {", ".join(artistInfo["genres"])}')
+            st.text(f'ジャンル:{", ".join(artistInfo["genres"])}')
         else:
-            st.text(f'ジャンル -')
+            st.text(f'ジャンル:-')
             
         relatedArtistInfo = sp.get_related_artistInfo(spotify, albumInfo["artists"][0]["id"])
         count = 0
@@ -41,9 +41,9 @@ with st.form(key='prifile_form'):
                 break
         
         if outRelatedArtist != []:
-            st.text(f'関連アーティスト {", ".join(outRelatedArtist)}')
+            st.text(f'関連アーティスト:{", ".join(outRelatedArtist)}')
         else:
-            st.text(f'関連アーティスト -')
+            st.text(f'関連アーティスト:-')
         
         dt_now = dt_now = datetime.datetime.now()
         year = str(dt_now.year)
