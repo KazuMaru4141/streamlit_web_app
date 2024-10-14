@@ -27,9 +27,9 @@ with st.form(key='prifile_form'):
         
         artistInfo = sp.get_artistInfo(spotify, albumInfo["artists"][0]["id"])
         if artistInfo["genres"] != []:
-            st.text(f'ジャンル:{", ".join(artistInfo["genres"])}')
+            st.write(f'ジャンル:{", ".join(artistInfo["genres"])}')
         else:
-            st.text(f'ジャンル:-')
+            st.write(f'ジャンル:-')
             
         relatedArtistInfo = sp.get_related_artistInfo(spotify, albumInfo["artists"][0]["id"])
         count = 0
@@ -41,17 +41,17 @@ with st.form(key='prifile_form'):
                 break
         
         if outRelatedArtist != []:
-            st.text(f'関連アーティスト:{", ".join(outRelatedArtist)}')
+            st.write(f'関連アーティスト:{", ".join(outRelatedArtist)}')
         else:
-            st.text(f'関連アーティスト:-')
+            st.write(f'関連アーティスト:-')
         
         dt_now = dt_now = datetime.datetime.now()
         year = str(dt_now.year)
-        st.text(f'')
-        st.text(f'#NewAlbum_{year}')
-        st.text(f'#WeeklyFeaturedAlbum')
+        st.write(f'')
+        st.write(f'#NewAlbum_{year}')
+        st.write(f'#WeeklyFeaturedAlbum')
 #        st.text(f'#今週良さそう')
-        st.text(f'#新譜')
+        st.write(f'#新譜')
         st.write(f'{albumInfo["external_urls"]["spotify"]}')
         
 with st.form(key='prifile_form2'):
