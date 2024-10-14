@@ -75,7 +75,7 @@ with st.form(key='prifile_form'):
                 rate
             ])
         
-        dt_now = datetime.datetime.now()
+        dt_now = datetime.datetime.now(tz=pytz.timezone("Asia/Tokyo"))
         rankingThisYear = []
         for album in sortedList:
             if str(dt_now.year) in str(album["ReleaseDate"]):

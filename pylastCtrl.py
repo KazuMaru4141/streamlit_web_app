@@ -2,7 +2,6 @@ import pylast
 import streamlit as st
 import os
 import datetime
-from tzlocal import get_localzone
 import pytz
 
 class pylastCtrl:
@@ -45,14 +44,8 @@ class pylastCtrl:
         return TrackPlayCount
         
     def getPlayCountToday(user):
-        ja = get_localzone()
         current_time = datetime.datetime.now(tz=pytz.timezone("Asia/Tokyo"))
-        
         start_time = datetime.datetime(current_time.year, current_time.month, current_time.day, 0, 0, 0, 0, tzinfo=pytz.timezone("Asia/Tokyo"))
-        
-        st.write(current_time.utcoffset())
-        st.write(f'current time {current_time.year} {current_time.month} {current_time.day} {current_time.hour} {current_time.minute} {current_time.second}')
-        
         
         current_unix_time = int(current_time.timestamp())
         start_unix_time = int(start_time.timestamp())

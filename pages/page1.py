@@ -3,6 +3,7 @@ from PIL import Image
 from streamlit_autorefresh import st_autorefresh
 from SpreadSheetAPI import GspreadCtrl
 from pylastCtrl import pylastCtrl
+import pytz
 
 import spotipy
 import spotipy.util as util
@@ -96,7 +97,7 @@ def onclickLiked():
     list_of_list = ws.col_values(2)
     
     if st.session_state.trackInfo["trackName"] not in list_of_list: 
-        dt_now = dt_now = datetime.datetime.now()
+        dt_now = dt_now = datetime.datetime.now(tz=pytz.timezone("Asia/Tokyo"))
         today = str(dt_now.year) + "-" + str(dt_now.month) + "-" + str(dt_now.day)
         appendList = []
         appendList.append([
@@ -137,7 +138,7 @@ def onclickSaved():
     gs = GspreadCtrl
     SP_SHEET_KEY = st.secrets.SP_SHEET_KEY.key_SpotifySavedAlbums
     ws, wb, SpreadInfo = gs.connect_gspread(SP_SHEET_KEY)
-    dt_now = dt_now = datetime.datetime.now()
+    dt_now = dt_now = datetime.datetime.now(tz=pytz.timezone("Asia/Tokyo"))
     today = str(dt_now.year) + "-" + str(dt_now.month) + "-" + str(dt_now.day)
     appendList = []
     appendList.append([

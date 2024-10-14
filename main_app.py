@@ -5,6 +5,7 @@ from SpotifyAPI import SpotifyCtrl
 from SpreadSheetAPI import GspreadCtrl
 import pandas as pd
 import numpy as np
+import pytz
 
 sp = SpotifyCtrl
 gs = GspreadCtrl
@@ -45,7 +46,7 @@ with st.form(key='prifile_form'):
         else:
             st.text(f'関連アーティスト:-')
         
-        dt_now = dt_now = datetime.datetime.now()
+        dt_now = dt_now = datetime.datetime.now(tz=pytz.timezone("Asia/Tokyo"))
         year = str(dt_now.year)
         #st.write(f'')
         st.text(f'#NewAlbum_{year}')
@@ -55,7 +56,7 @@ with st.form(key='prifile_form'):
         st.write(f'{albumInfo["external_urls"]["spotify"]}')
         
 with st.form(key='prifile_form2'):
-    dt_now = dt_now = datetime.datetime.now()
+    dt_now = dt_now = datetime.datetime.now(tz=pytz.timezone("Asia/Tokyo"))
     today = str(dt_now.year) + "-" + str(dt_now.month) + "-" + str(dt_now.day)
     date = st.text_input('Date', value=today)
     update_btn = st.form_submit_button('update')
