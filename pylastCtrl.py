@@ -46,11 +46,11 @@ class pylastCtrl:
     def getPlayCountToday(user):
         ja = get_localzone()
         current_time = datetime.datetime.now(tz=ja)
-        start_time = datetime.datetime(current_time.year, current_time.month, current_time.day, 0, 0, 0, 0)
+        start_time = datetime.datetime(current_time.year, current_time.month, current_time.day, 0, 0, 0, 0, tzinfo=ja)
         
         current_unix_time = int(current_time.timestamp())
         start_unix_time = int(start_time.timestamp())
-        play_count = user.get_recent_tracks(limit=400,time_from=current_unix_time, time_to=current_unix_time)
+        play_count = user.get_recent_tracks(limit=400,time_from=start_unix_time, time_to=current_unix_time)
 
         return len(play_count)
 
