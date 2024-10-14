@@ -174,7 +174,8 @@ if currentTrack != None:
     albumPlayCount = pc.getAlbumPlayCount(lastfm_user, now_playing)
     track_play_count = pc.getTrackPlayCount(lastfm_user, now_playing)
     playCountToday = pc.getPlayCountToday(lastfm_user)
-        
+    getOverallPlayCount = pc.getOverallPlayCount(lastfm_user)
+    
     col1, col2, col3 = st.columns([2, 2, 6])
     with col1:
         st.image(st.session_state.trackInfo["albumImg"], width=100)

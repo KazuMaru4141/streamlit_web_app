@@ -53,3 +53,8 @@ class pylastCtrl:
         play_count = user.get_recent_tracks(limit=400,time_from=start_unix_time, time_to=current_unix_time)
 
         return len(play_count)
+
+    def getOverallPlayCount(user):
+        total_scrobbles = user.get_playcount()
+        
+        return total_scrobbles
