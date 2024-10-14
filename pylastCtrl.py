@@ -58,3 +58,21 @@ class pylastCtrl:
         total_scrobbles = user.get_playcount()
         
         return total_scrobbles
+    
+    def getOverallArtist(user):
+        artists = user.get_top_artists(period=pylast.PERIOD_OVERALL)
+        total_artists = len(artists)
+        
+        return total_artists
+
+    def getOverallAlbum(user):
+        albums = user.get_top_albums(period=pylast.PERIOD_OVERALL)
+        total_albums = len(albums)
+        
+        return total_albums
+
+    def getOverallTracks(user):
+        tracks = user.get_recent_tracks(limit=None)
+        total_tracks = len(tracks)
+        
+        return total_tracks
