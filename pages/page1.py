@@ -175,8 +175,8 @@ if currentTrack != None:
     track_play_count = pc.getTrackPlayCount(lastfm_user, now_playing)
     playCountToday = pc.getPlayCountToday(lastfm_user)
     OverallPlayCount = pc.getOverallPlayCount(lastfm_user)
-    totalArtists = pc.getOverallArtist(lastfm_user)
-    totalAlbums = pc.getOverallAlbum(lastfm_user)
+#    totalArtists = pc.getOverallArtist(lastfm_user)
+#    totalAlbums = pc.getOverallAlbum(lastfm_user)
 #    totalTracks = pc.getOverallTracks(lastfm_user)
     
     col1, col2, col3 = st.columns([2, 2, 6])
@@ -217,8 +217,8 @@ if currentTrack != None:
     
     st.sidebar.write(f'today  {playCountToday}')
     st.sidebar.write(f'total scrobbles {OverallPlayCount}')
-    st.sidebar.write(f'total artists   {totalArtists}')
-    st.sidebar.write(f'total albums    {totalAlbums}')
+#    st.sidebar.write(f'total artists   {totalArtists}')
+#    st.sidebar.write(f'total albums    {totalAlbums}')
 #    st.sidebar.write(f'total tracks    {totalTracks}')
                 
 else:
