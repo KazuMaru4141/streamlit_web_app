@@ -10,7 +10,7 @@ sp = SpotifyCtrl
 gs = GspreadCtrl
 auth_manager, spotify = sp.create_spotify()
 
-st.title('Get Twitter')
+st.title('crate tweet')
 
 with st.form(key='prifile_form'):
     albumID = st.text_input('Album ID')
@@ -50,7 +50,7 @@ with st.form(key='prifile_form'):
         st.text(f'#WeeklyFeaturedAlbum')
 #        st.text(f'#今週良さそう')
         st.text(f'#新譜')
-        st.text(f'{albumInfo["external_urls"]["spotify"]}')
+        st.write(f'{albumInfo["external_urls"]["spotify"]}')
         
 with st.form(key='prifile_form2'):
     dt_now = dt_now = datetime.datetime.now()
