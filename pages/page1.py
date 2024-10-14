@@ -187,13 +187,8 @@ if currentTrack != None:
         st.button('♥️', on_click=onclickLiked)
         st.button('✅', on_click=onclickSaved)
     
-    col1, col2, col3 = st.columns([2, 2, 6])
-    with col1:
-        st.write(st.session_state.trackInfo["trackName"])
-    
-    with col2:
-        st.write(st.session_state.trackInfo["artistName"])
-    
+    st.write(st.session_state.trackInfo["trackName"])
+    st.write(st.session_state.trackInfo["artistName"])
     st.write(st.session_state.trackInfo["releaseDate"])
     
     st.markdown('##### Genre')
