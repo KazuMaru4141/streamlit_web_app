@@ -3,6 +3,7 @@ import streamlit as st
 import os
 import datetime
 from tzlocal import get_localzone
+import pytz
 
 class pylastCtrl:
     def getNetwork():
@@ -45,7 +46,7 @@ class pylastCtrl:
         
     def getPlayCountToday(user):
         ja = get_localzone()
-        current_time = datetime.datetime.now(tz=ja)
+        current_time = datetime.datetime.now(tzinfo=pytz.timezone("EST"))
         
         start_time = datetime.datetime(current_time.year, current_time.month, current_time.day, 0, 0, 0, 0)
         
