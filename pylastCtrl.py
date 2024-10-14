@@ -1,4 +1,5 @@
-import pylast as st
+import pylast
+import streamlit as st
 import os
 import datetime
 
@@ -6,7 +7,7 @@ class pylastCtrl:
     def getNetwork():
         api_key = st.secret.LASTFM_AUTH.API_KEY
         api_securet = st.secret.LASTFM_AUTH.API_SECRET
-        network = st.LastFMNetwork(api_key, api_securet)
+        network = pylast.LastFMNetwork(api_key, api_securet)
         network.session_key = st.secret.LASTFM_AUTH.SESSION_KEY
         
         return network
