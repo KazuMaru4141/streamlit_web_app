@@ -10,7 +10,7 @@ sp = SpotifyCtrl
 gs = GspreadCtrl
 auth_manager, spotify = sp.create_spotify()
 
-st.title('crate tweet')
+st.title('create tweet')
 
 with st.form(key='prifile_form'):
     albumID = st.text_input('Album ID')
