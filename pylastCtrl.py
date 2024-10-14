@@ -5,15 +5,15 @@ import datetime
 
 class pylastCtrl:
     def getNetwork():
-        api_key = st.secret.LASTFM_AUTH.API_KEY
-        api_securet = st.secret.LASTFM_AUTH.API_SECRET
+        api_key = st.secrets.LASTFM_AUTH.API_KEY
+        api_securet = st.secrets.LASTFM_AUTH.API_SECRET
         network = pylast.LastFMNetwork(api_key, api_securet)
-        network.session_key = st.secret.LASTFM_AUTH.SESSION_KEY
+        network.session_key = st.secrets.LASTFM_AUTH.SESSION_KEY
         
         return network
 
     def getUser(network):
-        lastFmUser = network.get_user(st.secret.LASTFM_AUTH.USERNAME)
+        lastFmUser = network.get_user(st.secrets.LASTFM_AUTH.USERNAME)
         
         return lastFmUser
 
