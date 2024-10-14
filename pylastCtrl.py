@@ -48,7 +48,7 @@ class pylastCtrl:
         current_time = datetime.datetime.now(tz=ja)
         start_time = datetime.datetime(current_time.year, current_time.month, current_time.day, 0, 0, 0, 0, tzinfo=ja)
         
-        print(f'current time {current_time.year} {current_time.month} {current_time.day} {current_time.hour} {current_time.minute} {current_time.second}')
+        st.write(f'current time {current_time.year} {current_time.month} {current_time.day} {current_time.hour} {current_time.minute} {current_time.second}')
         
         
         current_unix_time = int(current_time.timestamp())
