@@ -174,7 +174,7 @@ if currentTrack != None:
     albumPlayCount = pc.getAlbumPlayCount(lastfm_user, now_playing)
     track_play_count = pc.getTrackPlayCount(lastfm_user, now_playing)
     playCountToday = pc.getPlayCountToday(lastfm_user)
-    getOverallPlayCount = pc.getOverallPlayCount(lastfm_user)
+    OverallPlayCount = pc.getOverallPlayCount(lastfm_user)
     
     col1, col2, col3 = st.columns([2, 2, 6])
     with col1:
@@ -213,6 +213,7 @@ if currentTrack != None:
     st.sidebar.write(f'track {track_play_count}')
     
     st.sidebar.write(f'today  {playCountToday}')
+    st.sidebar.write(f'total  {OverallPlayCount}')
                 
 else:
     st.text(f'Track is not playing')
