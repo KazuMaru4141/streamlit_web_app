@@ -13,7 +13,8 @@ class pylastCtrl:
         return network
 
     def getUser(network):
-        lastFmUser = network.get_user(st.secrets.LASTFM_AUTH.USERNAME)
+        username = st.secrets.LASTFM_AUTH.USERNAME
+        lastFmUser = network.get_user(username)
         
         return lastFmUser
 

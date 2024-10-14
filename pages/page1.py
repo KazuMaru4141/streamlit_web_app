@@ -164,14 +164,14 @@ initSessionState(st)
 
 currentTrack = spotify.current_user_playing_track()
 
-now_playing = pc.getNowPlaying(lastfm_user)
-artistPlayCount = pc.getArtistPlayCount(lastfm_user, now_playing)
-albumPlayCount = pc.getAlbumPlayCount(lastfm_user, now_playing)
-playCountToday = pc.getPlayCountToday(lastfm_user)
-
 cols = st.columns(2)
 #print(currentTrack)
 if currentTrack != None:
+    now_playing = pc.getNowPlaying(lastfm_user)
+    artistPlayCount = pc.getArtistPlayCount(lastfm_user, now_playing)
+    albumPlayCount = pc.getAlbumPlayCount(lastfm_user, now_playing)
+    playCountToday = pc.getPlayCountToday(lastfm_user)
+    
     updateSessionState(st)
     st.image(st.session_state.trackInfo["albumImg"], width=100)
     st.button('♥️', on_click=onclickLiked)
