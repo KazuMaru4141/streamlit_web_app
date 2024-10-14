@@ -48,6 +48,9 @@ class pylastCtrl:
         current_time = datetime.datetime.now(tz=ja)
         start_time = datetime.datetime(current_time.year, current_time.month, current_time.day, 0, 0, 0, 0, tzinfo=ja)
         
+        print(f'current time {current_time.year} {current_time.month} {current_time.day} {current_time.hour} {current_time.minute} {current_time.second}')
+        
+        
         current_unix_time = int(current_time.timestamp())
         start_unix_time = int(start_time.timestamp())
         play_count = user.get_recent_tracks(limit=400,time_from=start_unix_time, time_to=current_unix_time)
