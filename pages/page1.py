@@ -46,6 +46,7 @@ def initSessionState(st):
     
     if 'playCount' not in st.session_state:
         #st.session_state.playCount["nowPlaying"] = ""
+        st.session_state.playCount = {}
         st.session_state.playCount["artistPlayCount"] = ""
         st.session_state.playCount["albumPlayCount"] = ""
         st.session_state.playCount["track_play_count"] = ""
