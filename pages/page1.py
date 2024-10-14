@@ -13,6 +13,8 @@ from SpotifyAPI import SpotifyCtrl
 
 import datetime
 
+st.set_page_config(layout="wide")
+
 sp = SpotifyCtrl
 auth_manager, spotify = sp.create_spotify()
 
@@ -173,8 +175,7 @@ if currentTrack != None:
     albumPlayCount = pc.getAlbumPlayCount(lastfm_user, now_playing)
     track_play_count = pc.getTrackPlayCount(lastfm_user, now_playing)
     playCountToday = pc.getPlayCountToday(lastfm_user)
-    
-    
+        
     with col1:
         st.image(st.session_state.trackInfo["albumImg"], width=100)
         
@@ -188,31 +189,8 @@ if currentTrack != None:
     
     with col2:
         st.write(st.session_state.trackInfo["artistName"])
+    
     st.write(st.session_state.trackInfo["releaseDate"])
-    
-    st.markdown('##### Scrobbles')
-    col1, col2, col3, col4 = st.columns([1, 1, 1, 7])
-    
-    with col1:
-        st.write(f'artist {artistPlayCount}')
-    
-    with col2:
-        st.write(f'album {albumPlayCount}')
-
-    with col3:
-        st.write(f'track {track_play_count}')
-    
-    # col1, col2, col3, col4 = st.columns([1, 1, 1, 7])
-    # with col1:
-    #     st.write(f'{artistPlayCount}')
-    
-    # with col2:
-    #     st.write(f'{albumPlayCount}')
-
-    # with col3:
-    #     st.write(f'{track_play_count}')
-    
-    st.write(f'today  {playCountToday}')
     
     st.markdown('##### Genre')
     if st.session_state.trackInfo["genre"] != []:
@@ -227,6 +205,13 @@ if currentTrack != None:
         linkLabel = artist[0]
         #st.page_link(link, label=linkLabel)
         st.write(artist[0])
+    
+    st.sidebar.markdown("## Scrobbles")
+    st.write(f'artist {artistPlayCount}')
+    st.write(f'album {albumPlayCount}')
+    st.write(f'track {track_play_count}')
+    
+    st.write(f'today  {playCountToday}')
                 
 else:
     st.text(f'Track is not playing')
