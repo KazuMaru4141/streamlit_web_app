@@ -166,7 +166,6 @@ initSessionState(st)
 
 currentTrack = spotify.current_user_playing_track()
 
-col1, col2, col3 = st.columns([2, 2, 6])
 #print(currentTrack)
 if currentTrack != None:
     updateSessionState(st)
@@ -176,6 +175,7 @@ if currentTrack != None:
     track_play_count = pc.getTrackPlayCount(lastfm_user, now_playing)
     playCountToday = pc.getPlayCountToday(lastfm_user)
         
+    col1, col2, col3 = st.columns([2, 2, 6])
     with col1:
         st.image(st.session_state.trackInfo["albumImg"], width=100)
         
@@ -198,13 +198,14 @@ if currentTrack != None:
     else:
         st.write(f'-')
 
-    st.markdown('##### Related Artists')
+#    st.markdown('##### Related Artists')
 
-    for artist in st.session_state.trackInfo["related"]:
-        link = artist[1]
-        linkLabel = artist[0]
-        #st.page_link(link, label=linkLabel)
-        st.write(artist[0])
+    with st.expander("## Related Artists"):
+        for artist in st.session_state.trackInfo["related"]:
+            link = artist[1]
+            linkLabel = artist[0]
+            #st.page_link(link, label=linkLabel)
+            st.write(artist[0])
     
     st.sidebar.markdown("## Scrobbles")
     st.sidebar.write(f'artist {artistPlayCount}')
