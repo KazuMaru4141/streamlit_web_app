@@ -207,11 +207,11 @@ if currentTrack != None:
         st.write(artist[0])
     
     st.sidebar.markdown("## Scrobbles")
-    st.write(f'artist {artistPlayCount}')
-    st.write(f'album {albumPlayCount}')
-    st.write(f'track {track_play_count}')
+    st.sidebar.write(f'artist {artistPlayCount}')
+    st.sidebar.write(f'album {albumPlayCount}')
+    st.sidebar.write(f'track {track_play_count}')
     
-    st.write(f'today  {playCountToday}')
+    st.sidebar.write(f'today  {playCountToday}')
                 
 else:
     st.text(f'Track is not playing')
