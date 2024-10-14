@@ -194,25 +194,25 @@ if currentTrack != None:
     col1, col2, col3, col4 = st.columns([1, 1, 1, 7])
     
     with col1:
-        st.write(f'artist')
+        st.write(f'artist {artistPlayCount}')
     
     with col2:
-        st.write(f'album')
+        st.write(f'album {albumPlayCount}')
 
     with col3:
-        st.write(f'track')
+        st.write(f'track {track_play_count}')
     
-    col1, col2, col3, col4 = st.columns([1, 1, 1, 7])
-    with col1:
-        st.write(f'{artistPlayCount}')
+    # col1, col2, col3, col4 = st.columns([1, 1, 1, 7])
+    # with col1:
+    #     st.write(f'{artistPlayCount}')
     
-    with col2:
-        st.write(f'{albumPlayCount}')
+    # with col2:
+    #     st.write(f'{albumPlayCount}')
 
-    with col3:
-        st.write(f'{track_play_count}')
+    # with col3:
+    #     st.write(f'{track_play_count}')
     
-    st.write(f'today: {playCountToday}')
+    st.write(f'today  {playCountToday}')
     
     st.markdown('##### Genre')
     if st.session_state.trackInfo["genre"] != []:
