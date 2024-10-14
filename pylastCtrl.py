@@ -2,6 +2,7 @@ import pylast
 import streamlit as st
 import os
 import datetime
+from tzlocal import get_localzone
 
 class pylastCtrl:
     def getNetwork():
@@ -38,7 +39,8 @@ class pylastCtrl:
         return albumPlayCount
         
     def getPlayCountToday(user):
-        current_time = datetime.datetime.now()
+        ja = get_localzone()
+        current_time = datetime.datetime.now(tz=ja)
         start_time = datetime.datetime(current_time.year, current_time.month, current_time.day, 0, 0, 0, 0)
 
         current_unix_time = int(current_time.timestamp())
