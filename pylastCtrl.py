@@ -53,6 +53,26 @@ class pylastCtrl:
 
         return len(play_count)
 
+    def getPlayCountThisMonth(user):
+        current_time = datetime.datetime.now(tz=pytz.timezone("Asia/Tokyo"))
+        start_time = datetime.datetime(current_time.year, current_time.month, 1, 0, 0, 0, 0, tzinfo=pytz.timezone("Asia/Tokyo"))
+        
+        current_unix_time = int(current_time.timestamp())
+        start_unix_time = int(start_time.timestamp())
+        play_count = user.get_recent_tracks(limit=400,time_from=start_unix_time, time_to=current_unix_time)
+
+        return len(play_count)
+    
+    def getPlayCountThisYear(user):
+        current_time = datetime.datetime.now(tz=pytz.timezone("Asia/Tokyo"))
+        start_time = datetime.datetime(current_time.year, 1, 1, 0, 0, 0, 0, tzinfo=pytz.timezone("Asia/Tokyo"))
+        
+        current_unix_time = int(current_time.timestamp())
+        start_unix_time = int(start_time.timestamp())
+        play_count = user.get_recent_tracks(limit=400,time_from=start_unix_time, time_to=current_unix_time)
+
+        return len(play_count)
+
     def getOverallPlayCount(user):
         total_scrobbles = user.get_playcount()
         
