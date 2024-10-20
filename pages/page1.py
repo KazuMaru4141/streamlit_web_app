@@ -111,27 +111,18 @@ def onclickLiked():
             st.session_state.trackInfo["trackURL"],
             str(1),
         ])
-        #print("Added!")
         ws.append_rows(appendList)
         sp.addLikedTrackToPlaylist(spotify, st.session_state.trackInfo["trackURI"])
         st.write(f'Successfully Added')
     else:
-        #impression = int(LikedInfo[st.session_state.trackInfo["Impression"]])
-        #impression = impression + 1
-        
         cell = ws.find(st.session_state.trackInfo["trackName"])
-        #print(cell)
-        #print(cell.row)
-        #print(ws.cell(cell.row, 9))
         row = int(cell.row)
-        #print(ws.cell(row, 9).value)
         if (ws.cell(row, 9).value == None):
             ws.update_cell(cell.row, 9, "1")
         else:
             impression = int(ws.cell(row, 9).value)
             impression = impression + 1
             ws.update_cell(cell.row, 9, impression)
-        #ws.update_cell()
         st.write(f'Already Added')
 
 def onclickSaved():        
@@ -195,8 +186,7 @@ if currentTrack != None:
         st.button('♥️', on_click=onclickLiked)
         st.button('✅', on_click=onclickSaved)
     
-    st.write(st.session_state.trackInfo["trackName"])
-    st.write(st.session_state.trackInfo["artistName"])
+    st.write(f'st.session_state.trackInfo["trackName"] by st.session_state.trackInfo["artistName"]')
     st.write(st.session_state.trackInfo["releaseDate"])
     
     st.markdown('##### Genre')
