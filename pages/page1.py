@@ -94,9 +94,9 @@ def onclickLiked():
     gs = GspreadCtrl
     SP_SHEET_KEY = st.secrets.SP_SHEET_KEY.Key_LikedSongs
     ws, wb, LikedInfo = gs.connect_gspread(SP_SHEET_KEY)
-    list_of_list = ws.col_values(2)
+    trackIdList = ws.col_values(6)
     
-    if st.session_state.trackInfo["trackName"] not in list_of_list: 
+    if st.session_state.trackInfo["trackID"] not in trackIdList: 
         dt_now = dt_now = datetime.datetime.now(tz=pytz.timezone("Asia/Tokyo"))
         today = str(dt_now.year) + "-" + str(dt_now.month) + "-" + str(dt_now.day)
         appendList = []
@@ -158,15 +158,6 @@ def onclickSaved():
     print(appendList)
     ws.append_rows(appendList)
     st.write(f'Successfully Saved!')
-#    print(f'Successfully Saved!')
-
-def onclickNext():
-    print("-----------------------------------------")
-    device = spotify.devices()
-    print(device)
-    spotify.next()
-#   # sp.skipTrack(spotify)
-    #print("skipped")
 
 ############### Main #######################################
 st.write(f'#### Now Playing')
@@ -178,13 +169,9 @@ currentTrack = spotify.current_user_playing_track()
 if currentTrack != None:
     updateSessionState(st)
     
-    col1, col2, col3 = st.columns([2, 2, 6])
-    with col1:
-        st.image(st.session_state.trackInfo["albumImg"], width=100)
-        
-    with col2:
-        st.button('♥️', on_click=onclickLiked)
-        st.button('✅', on_click=onclickSaved)
+    st.image(st.session_state.trackInfo["albumImg"], width=100)    
+    st.button('♥️', on_click=onclickLiked)
+    st.button('✅', on_click=onclickSaved)
     
     st.write(f'st.session_state.trackInfo["trackName"] by st.session_state.trackInfo["artistName"]')
     st.write(st.session_state.trackInfo["releaseDate"])
@@ -206,19 +193,7 @@ if currentTrack != None:
     for artist in st.session_state.trackInfo["related"]:
         link = artist[1]
         linkLabel = artist[0]
-        #st.page_link(link, label=linkLabel)
         st.write(artist[0])
-    
-    # st.sidebar.markdown("## Scrobbles")
-    # st.sidebar.write(f'artist {artistPlayCount}')
-    # st.sidebar.write(f'album {albumPlayCount}')
-    # st.sidebar.write(f'track {track_play_count}')
-    
-    # st.sidebar.write(f'today  {playCountToday}')
-    # st.sidebar.write(f'total scrobbles {OverallPlayCount}')
-#    st.sidebar.write(f'total artists   {totalArtists}')
-#    st.sidebar.write(f'total albums    {totalAlbums}')
-#    st.sidebar.write(f'total tracks    {totalTracks}')
                 
 else:
     st.text(f'Track is not playing')
