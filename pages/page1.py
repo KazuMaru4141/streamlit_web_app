@@ -173,7 +173,7 @@ if currentTrack != None:
     st.button('♥️', on_click=onclickLiked)
     st.button('✅', on_click=onclickSaved)
     
-    st.write(f'st.session_state.trackInfo["trackName"] by st.session_state.trackInfo["artistName"]')
+    st.write(f'{st.session_state.trackInfo["trackName"]} by {st.session_state.trackInfo["artistName"]}')
     st.write(st.session_state.trackInfo["releaseDate"])
     
     st.markdown('##### Genre')
