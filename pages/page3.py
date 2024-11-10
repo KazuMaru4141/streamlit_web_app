@@ -80,22 +80,97 @@ class SpreadSheetUpdater(threading.Thread):
         
         print("init SpreadSheetUpdater")
         self.gs = GspreadCtrl
-        self.ws = None
-        self.wb = None
+        self.wsLiked = None
+        self.wbLiked = None
         self.LikedInfo = None
+        self.wsSaved = None
+        self.wbSaved = None
+        self.SavedInfo = None
+        self.sp = SpotifyCtrl
+        self.spotify = None
+        self.auth_manager = None
         
     
     def run(self):
         while (1):
-            if self.ws == None:
-                self.ws, self.wb, self.LikedInfo = self.gs.connect_gspread(st.secrets.SP_SHEET_KEY.Key_LikedSongs)
-                print("spread sheet read")
+            if self.wsLiked == None:
+                self.wsLiked, self.wbLiked, self.LikedInfo = self.gs.connect_gspread(st.secrets.SP_SHEET_KEY.Key_LikedSongs)
+                print("spread sheet liked read")
+            
+            if self.wsSaved == None:
+                self.wsSaved, self.wbSaved, self.SavedInfo = self.gs.connect_gspread(st.secrets.SP_SHEET_KEY.key_SpotifySavedAlbums)
+                print("spread sheet saved read")
+            
+            if self.spotify == None:
+                self.auth_manager, self.spotify = self.sp.create_spotify()
+                print("spotify object created")
             
             if self.onLiked.wait(0) == True:
                 print("Likedボタン押されたよ")
+                self.onLiked.clear()
+                # currentTrack = self.spotify.current_user_playing_track()
+                # trackIdList = self.wsLiked.col_values(6)
+    
+                # if st.session_state.trackInfo["trackID"] not in trackIdList: 
+                #     dt_now = dt_now = datetime.datetime.now(tz=pytz.timezone("Asia/Tokyo"))
+                #     today = str(dt_now.year) + "-" + str(dt_now.month) + "-" + str(dt_now.day)
+                #     appendList = []
+                #     appendList.append([
+                #         today,
+                #         st.session_state.trackInfo["trackName"],
+                #         st.session_state.trackInfo["albumName"],
+                #         st.session_state.trackInfo["artistName"],
+                #         st.session_state.trackInfo["albumImg"],
+                #         st.session_state.trackInfo["trackID"],
+                #         "",
+                #         st.session_state.trackInfo["trackURL"],
+                #         str(1),
+                #     ])
+                #     self.wsLiked.append_rows(appendList)
+                #     st.write(f'Successfully Added')
+                # else:
+                #     cell = self.wsLiked.find(st.session_state.trackInfo["trackName"])
+                #     row = int(cell.row)
+                #     if (self.wsLiked.cell(row, 9).value == None):
+                #         self.wsLiked.update_cell(cell.row, 9, "1")
+                #     else:
+                #         impression = int(self.wsLiked.cell(row, 9).value)
+                #         impression = impression + 1
+                #         self.wsLiked.update_cell(cell.row, 9, impression)
+                #     st.write(f'Already Added')
             
             if self.onSaved.wait(0) == True:
                 print("Savedボタン押されたよ")
+                self.onSaved.clear()
+                # dt_now = dt_now = datetime.datetime.now(tz=pytz.timezone("Asia/Tokyo"))
+                # today = str(dt_now.year) + "-" + str(dt_now.month) + "-" + str(dt_now.day)
+                # appendList = []
+                # appendList.append([
+                #     today,
+                #     "",
+                #     st.session_state.trackInfo["albumName"],
+                #     st.session_state.trackInfo["artistName"],
+                #     st.session_state.trackInfo["albumImg"],
+                #     st.session_state.trackInfo["artistImg"],
+                #     st.session_state.trackInfo["albumID"],
+                #     st.session_state.trackInfo["albumURL"],
+                #     st.session_state.trackInfo["artistID"],
+                #     st.session_state.trackInfo["artistURL"],
+                #     st.session_state.trackInfo["total_tracks"],
+                #     0,
+                #     0,
+                #     "",
+                #     "",
+                #     st.session_state.trackInfo["artistPopularity"],
+                #     "",
+                #     st.session_state.trackInfo["type"],
+                #     st.session_state.trackInfo["releaseDate"],
+                #     ", ".join(st.session_state.trackInfo["genre"]),
+                #     ""
+                # ])
+                # print(appendList)
+                # wsSaved.append_rows(appendList)
+                # st.write(f'Successfully Saved!')
             
             time.sleep(1)
             
@@ -133,75 +208,6 @@ class ThreadManager:
     
     def onSaved(self):
         self.worker2.onSaved.set()
-
-#def onclickLiked():
-    # gs = GspreadCtrl
-    # SP_SHEET_KEY = st.secrets.SP_SHEET_KEY.Key_LikedSongs
-    # ws, wb, LikedInfo = gs.connect_gspread(SP_SHEET_KEY)
-    # trackIdList = ws.col_values(6)
-    
-    # if st.session_state.trackInfo["trackID"] not in trackIdList: 
-    #     dt_now = dt_now = datetime.datetime.now(tz=pytz.timezone("Asia/Tokyo"))
-    #     today = str(dt_now.year) + "-" + str(dt_now.month) + "-" + str(dt_now.day)
-    #     appendList = []
-    #     appendList.append([
-    #         today,
-    #         st.session_state.trackInfo["trackName"],
-    #         st.session_state.trackInfo["albumName"],
-    #         st.session_state.trackInfo["artistName"],
-    #         st.session_state.trackInfo["albumImg"],
-    #         st.session_state.trackInfo["trackID"],
-    #         "",
-    #         st.session_state.trackInfo["trackURL"],
-    #         str(1),
-    #     ])
-    #     ws.append_rows(appendList)
-    #     sp.addLikedTrackToPlaylist(spotify, st.session_state.trackInfo["trackURI"])
-    #     st.write(f'Successfully Added')
-    # else:
-    #     cell = ws.find(st.session_state.trackInfo["trackName"])
-    #     row = int(cell.row)
-    #     if (ws.cell(row, 9).value == None):
-    #         ws.update_cell(cell.row, 9, "1")
-    #     else:
-    #         impression = int(ws.cell(row, 9).value)
-    #         impression = impression + 1
-    #         ws.update_cell(cell.row, 9, impression)
-    #     st.write(f'Already Added')
-
-#def onclickSaved():
-    # gs = GspreadCtrl
-    # SP_SHEET_KEY = st.secrets.SP_SHEET_KEY.key_SpotifySavedAlbums
-    # ws, wb, SpreadInfo = gs.connect_gspread(SP_SHEET_KEY)
-    # dt_now = dt_now = datetime.datetime.now(tz=pytz.timezone("Asia/Tokyo"))
-    # today = str(dt_now.year) + "-" + str(dt_now.month) + "-" + str(dt_now.day)
-    # appendList = []
-    # appendList.append([
-    #     today,
-    #     "",
-    #     st.session_state.trackInfo["albumName"],
-    #     st.session_state.trackInfo["artistName"],
-    #     st.session_state.trackInfo["albumImg"],
-    #     st.session_state.trackInfo["artistImg"],
-    #     st.session_state.trackInfo["albumID"],
-    #     st.session_state.trackInfo["albumURL"],
-    #     st.session_state.trackInfo["artistID"],
-    #     st.session_state.trackInfo["artistURL"],
-    #     st.session_state.trackInfo["total_tracks"],
-    #     0,
-    #     0,
-    #     "",
-    #     "",
-    #     st.session_state.trackInfo["artistPopularity"],
-    #     "",
-    #     st.session_state.trackInfo["type"],
-    #     st.session_state.trackInfo["releaseDate"],
-    #     ", ".join(st.session_state.trackInfo["genre"]),
-    #     ""
-    # ])
-    # print(appendList)
-    # ws.append_rows(appendList)
-    # st.write(f'Successfully Saved!')
     
 def main():    
     thread_manager = ThreadManager()    
@@ -223,6 +229,8 @@ def main():
             st.markdown(f'track play count {worker.trackPlayCount}')
         else:
             st.markdown(f'Nothing playing')
+            st.button('♥️', on_click=thread_manager.onLiked)
+            st.button('✅', on_click=thread_manager.onSaved)
             st.markdown(f'{worker.i}')
 
     st_autorefresh(interval=1000, key="dataframerefresh")
