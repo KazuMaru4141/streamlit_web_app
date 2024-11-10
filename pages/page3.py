@@ -91,6 +91,8 @@ class SpreadSheetUpdater(threading.Thread):
             if self.onSaved.wait(0) == True:
                 print("Savedボタン押されたよ")
             
+            time.sleep(1)
+            
 
 @st.cache_resource
 @dataclasses.dataclass
@@ -215,6 +217,7 @@ def main():
             st.markdown(f'track play count {worker.trackPlayCount}')
         else:
             st.markdown(f'Nothing playing')
+            st.markdown(f'{worker.i}')
 
     st_autorefresh(interval=1000, key="dataframerefresh")
 
