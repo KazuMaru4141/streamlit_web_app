@@ -79,12 +79,18 @@ class SpreadSheetUpdater(threading.Thread):
         self.onSaved = threading.Event()
         
         print("init SpreadSheetUpdater")
-        gs = GspreadCtrl
-        self.ws, self.wb, self.LikedInfo = gs.connect_gspread(st.secrets.SP_SHEET_KEY.Key_LikedSongs)
-        print("spread sheet read")
+        self.gs = GspreadCtrl
+        self.ws = None
+        self.wb = None
+        self.LikedInfo = None
+        
     
     def run(self):
         while (1):
+            if self.ws == None:
+                self.ws, self.wb, self.LikedInfo = self.gs.connect_gspread(st.secrets.SP_SHEET_KEY.Key_LikedSongs)
+                print("spread sheet read")
+            
             if self.onLiked.wait(0) == True:
                 print("Likedボタン押されたよ")
             
