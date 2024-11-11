@@ -239,7 +239,7 @@ def main():
                 st.image(worker.album_cover_image, width=100)
             st.button('♥️', on_click=thread_manager.onLiked)
             st.button('✅', on_click=thread_manager.onSaved)
-            st.markdown(f'{worker.track_title} by {worker.artist_name} ({worker.release_date})')
+            st.markdown(f'__{worker.track_title}__ by __{worker.artist_name}__ ({worker.release_date})')
             st.markdown(f'🎤 {worker.artistPlayCount} &nbsp; &nbsp; 💿 {worker.albumPlayCount}  &nbsp; &nbsp; 🎵 {worker.trackPlayCount}')
             st.markdown(f'⏭️ {worker.playCountToday} &nbsp; &nbsp; &nbsp; ▶️ {worker.overallPlayCount}')
 #            st.markdown(f'overall {worker.overallPlayCount}')
