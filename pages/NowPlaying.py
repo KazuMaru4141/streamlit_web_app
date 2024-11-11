@@ -235,19 +235,19 @@ def main():
         
         if worker.now_playing != None:
 #            st.markdown(f'{worker.i}')
-            st.image(worker.album_cover_image, width=100)
+            if worker.album_cover_image is not None:
+                st.image(worker.album_cover_image, width=100)
             st.button('♥️', on_click=thread_manager.onLiked)
             st.button('✅', on_click=thread_manager.onSaved)
             st.markdown(f'{worker.track_title} by {worker.artist_name} ({worker.release_date})')
-            st.markdown(f'today {worker.playCountToday}')
-            st.markdown(f'overall {worker.overallPlayCount}')
-            st.markdown(f'artist {worker.artistPlayCount}')
-            st.markdown(f'album {worker.albumPlayCount}')
-            st.markdown(f'track {worker.trackPlayCount}')
+            st.markdown(f'🎤 {worker.artistPlayCount} &nbsp; &nbsp; 💿 {worker.albumPlayCount}  &nbsp; &nbsp; 🎵 {worker.trackPlayCount}')
+            st.markdown(f'⏭️ {worker.playCountToday} &nbsp; &nbsp; &nbsp; ▶️ {worker.overallPlayCount}')
+#            st.markdown(f'overall {worker.overallPlayCount}')
+            
+#            st.markdown(f'album {worker.albumPlayCount}')
+#            st.markdown(f'track {worker.trackPlayCount}')
         else:
             st.markdown(f'Nothing playing')
-            st.button('♥️', on_click=thread_manager.onLiked)
-            st.button('✅', on_click=thread_manager.onSaved)
 #            st.markdown(f'{worker.i}')
 
     st_autorefresh(interval=1000, key="dataframerefresh")
