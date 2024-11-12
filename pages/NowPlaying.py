@@ -12,6 +12,7 @@ from pylastCtrl import pylastCtrl
 from SpreadSheetAPI import GspreadCtrl
 from SpotifyAPI import SpotifyCtrl
 
+
 class Worker(threading.Thread):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -37,8 +38,6 @@ class Worker(threading.Thread):
             if self.now_playing is not None:
                 trackName = self.now_playing.get_name()
                 if trackName != self.track_title:
-                    currentTrack = self.spotify.current_user_playing_track()
-                    
                     self.track_title = trackName
                     self.artist_name = self.now_playing.artist.get_name()
                     
@@ -51,7 +50,17 @@ class Worker(threading.Thread):
                     self.playCountToday = self.pc.getPlayCountToday(self.lastfm_user)
                     self.overallPlayCount = self.pc.getOverallPlayCount(self.lastfm_user)
                     
+                    currentTrack = self.spotify.current_user_playing_track()
                     self.release_date = currentTrack["item"]["album"]["release_date"]
+                    artistInfo = self.spotify.artist(currentTrack["item"]["artists"][0]["id"])
+                    self.genres = artistInfo["genres"]
+                    
+                    relatedArtists = self.spotify.artist_related_artists(currentTrack["item"]["artists"][0]["id"])
+                    related = []
+                    for artist in relatedArtists["artists"]:
+                        appendList = [artist["name"], artist["external_urls"]["spotify"]]
+                        related.append(appendList)
+                    self.related = related
             else:
                 self.init_parameter()
             
@@ -64,6 +73,7 @@ class Worker(threading.Thread):
         self.release_date = ""
         self.genres = ""
         self.track_title = ""
+        self.related = ""
         self.playCountToday = 0
         self.overallPlayCount = 0
         self.artistPlayCount = 0
@@ -242,13 +252,17 @@ def main():
             st.markdown(f'__{worker.track_title}__ by __{worker.artist_name}__ ({worker.release_date})')
             st.markdown(f'🎤 {worker.artistPlayCount} &nbsp; &nbsp; 💿 {worker.albumPlayCount}  &nbsp; &nbsp; 🎵 {worker.trackPlayCount}')
             st.markdown(f'⏭️ {worker.playCountToday} &nbsp; &nbsp; &nbsp; ▶️ {worker.overallPlayCount}')
-#            st.markdown(f'overall {worker.overallPlayCount}')
+            if worker.genres != []:
+                st.write(f'{", ".join(worker.genres)}')
+            else:
+                st.write(f'-')
             
-#            st.markdown(f'album {worker.albumPlayCount}')
-#            st.markdown(f'track {worker.trackPlayCount}')
+            st.markdown(":violet[__Related artists__]")
+            for artist in worker.related:
+                st.write(artist[0])
+            
         else:
             st.markdown(f'Nothing playing')
-#            st.markdown(f'{worker.i}')
 
     st_autorefresh(interval=1000, key="dataframerefresh")
 
