@@ -264,8 +264,7 @@ def main():
         else:
             st.markdown(f'Nothing playing')
 
-    st_autorefresh(interval=1000, key="dataframerefresh")
-
+    st_autorefresh(interval=1000, key="dataframerefresh") 
 
 if __name__ == '__main__':
     main()
