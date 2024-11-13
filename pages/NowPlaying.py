@@ -64,7 +64,7 @@ class Worker(threading.Thread):
             else:
                 self.init_parameter()
             
-            time.sleep(5)
+            time.sleep(10)
 
     def init_parameter(self):
         self.artist_name = ""
