@@ -99,6 +99,8 @@ class SpreadSheetUpdater(threading.Thread):
         self.spotify = None
         self.auth_manager = None
         self.stop_event = threading.Event()
+        self.isLikedInit = False
+        self.isLSavedInit = False
     
     def run(self):
         while not self.stop_event.is_set():
@@ -115,10 +117,12 @@ class SpreadSheetUpdater(threading.Thread):
     def setup_connections(self):
         if self.wsLiked is None:
             self.wsLiked, self.wbLiked, self.LikedInfo = self.gs.connect_gspread(st.secrets.SP_SHEET_KEY.Key_LikedSongs)
+            self.isLikedInit = True
 #            print("spread sheet liked read")
         
         if self.wsSaved is None:
             self.wsSaved, self.wbSaved, self.SavedInfo = self.gs.connect_gspread(st.secrets.SP_SHEET_KEY.key_SpotifySavedAlbums)
+            self.isLSavedInit = True
 #            print("spread sheet saved read")
         
         if self.spotify is None:
@@ -207,7 +211,7 @@ class ThreadManager:
     worker2 = None
     
     def get_worker(self):
-        return self.worker
+        return self.worker, self.worker2
     
     def is_running(self):
         return self.worker is not None and self.worker.is_alive()
@@ -242,14 +246,19 @@ def main():
 #        print("start thread manager")
         worker = thread_manager.start_worker()
     else:
-        worker = thread_manager.get_worker()
+        worker, worker2 = thread_manager.get_worker()
         
         if worker.now_playing != None:
 #            st.markdown(f'{worker.i}')
             if worker.album_cover_image is not None:
                 st.image(worker.album_cover_image, width=100)
-            st.button('♥️', on_click=thread_manager.onLiked)
-            st.button('✅', on_click=thread_manager.onSaved)
+                
+            if worker2.isLikedInit == True:
+                st.button('♥️', on_click=thread_manager.onLiked)
+            
+            if worker2.isLSavedInit == True:
+                st.button('✅', on_click=thread_manager.onSaved)
+            
             st.markdown(f'__{worker.track_title}__ by __{worker.artist_name}__ ({worker.release_date})')
             st.markdown(f'🎤 {worker.artistPlayCount} &nbsp; &nbsp; 💿 {worker.albumPlayCount}  &nbsp; &nbsp; 🎵 {worker.trackPlayCount}')
             st.markdown(f'⏭️ {worker.playCountToday} &nbsp; &nbsp; &nbsp; ▶️ {worker.overallPlayCount}')
