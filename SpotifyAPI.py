@@ -4,8 +4,6 @@ import spotipy.util as util
 from spotipy.oauth2 import SpotifyClientCredentials
 from spotipy.oauth2 import SpotifyOAuth
 
-
-
 class SpotifyCtrl:
     def create_spotify():
         SCOPE = 'user-library-read user-read-playback-state playlist-read-private user-read-recently-played playlist-read-collaborative playlist-modify-public playlist-modify-private'
@@ -41,3 +39,6 @@ class SpotifyCtrl:
 
     #def skipTrack(spotify):
     #    spotify.
+    
+    def getRecentPlayedTracs(spotify):
+        return spotify.current_user_recently_played(limit=50)
