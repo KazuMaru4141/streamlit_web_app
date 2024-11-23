@@ -13,7 +13,7 @@ class OverviewController:
             with st.container(border=True):
                 col1, col2, col3, col4 = st.columns([1, 4, 1, 6], vertical_alignment="center")
                 with col1:
-                    st.image({track["track"]["album"]["images"][0]["url"]}, width=70)
+                    st.image({track["track"]["album"]["images"][0]["url"]}, width=50)
                 
                 with col2:
                     st.markdown(f'{track["track"]["name"]}  \n {track["track"]["artists"][0]["name"]}  \n {track["played_at"]}')
