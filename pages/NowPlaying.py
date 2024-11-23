@@ -30,8 +30,8 @@ class Worker(threading.Thread):
         
     def run(self):
         while not self.stop_req.wait(0):
-            if self.spotify is None:
-                self.auth_manager, self.spotify = self.sp.create_spotify()
+#            if self.spotify is None:
+#                self.auth_manager, self.spotify = self.sp.create_spotify()
             self.now_playing = self.pc.getNowPlaying(self.lastfm_user)
 #            self.i = self.i + 1
 
@@ -50,6 +50,7 @@ class Worker(threading.Thread):
                     self.playCountToday = self.pc.getPlayCountToday(self.lastfm_user)
                     self.overallPlayCount = self.pc.getOverallPlayCount(self.lastfm_user)
                     
+                    self.auth_manager, self.spotify = self.sp.create_spotify()
                     currentTrack = self.spotify.current_user_playing_track()
                     self.release_date = currentTrack["item"]["album"]["release_date"]
                     artistInfo = self.spotify.artist(currentTrack["item"]["artists"][0]["id"])
