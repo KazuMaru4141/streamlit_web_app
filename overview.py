@@ -16,7 +16,7 @@ class OverviewController:
                     st.image({track["track"]["album"]["images"][0]["url"]}, width=50)
                 
                 with col2:
-                    st.markdown(f'{track["track"]["name"]}  \n {track["track"]["artists"][0]["name"]}  \n {track["played_at"]}')
+                    st.markdown(f'[{track["track"]["name"]}]({track["track"]["external_urls"]["spotify"]})  \n [{track["track"]["artists"][0]["name"]}]({track["track"]["artists"][0]["external_urls"]["spotify"]})  \n {track["played_at"]}')
                 
                 with col3:
                     st.markdown('♥️')
@@ -24,3 +24,4 @@ class OverviewController:
                 with col4:
                     pass
 
+import streamlit as st
