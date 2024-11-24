@@ -14,6 +14,7 @@ from pylastCtrl import pylastCtrl
 from SpreadSheetAPI import GspreadCtrl
 from SpotifyAPI import SpotifyCtrl
 
+st.set_page_config(layout="wide")
 
 class Worker(threading.Thread):
     def __init__(self, **kwargs):
@@ -61,7 +62,7 @@ class Worker(threading.Thread):
                     relatedArtists = self.spotify.artist_related_artists(currentTrack["item"]["artists"][0]["id"])
                     related = []
                     for artist in relatedArtists["artists"]:
-                        appendList = [artist["name"], artist["external_urls"]["spotify"]]
+                        appendList = [artist["name"], artist["external_urls"]["spotify"], artist["images"][0]["url"]]
                         related.append(appendList)
                     self.related = related
                     
@@ -265,8 +266,7 @@ def main():
                 st.button('✅', on_click=thread_manager.onSaved)
             
             st.markdown(f'__{worker.track_title}__ by __{worker.artist_name}__ ({worker.release_date})')
-            st.markdown(f'🎤 {worker.artistPlayCount} &nbsp; &nbsp; 💿 {worker.albumPlayCount}  &nbsp; &nbsp; 🎵 {worker.trackPlayCount}')
-            st.markdown(f'⏭️ {worker.playCountToday} &nbsp; &nbsp; &nbsp; ▶️ {worker.overallPlayCount}')
+            st.markdown(f'🎤 {worker.artistPlayCount} &nbsp; &nbsp; 💿 {worker.albumPlayCount}  &nbsp; &nbsp; 🎵 {worker.trackPlayCount}  \n ⏭️ {worker.playCountToday} &nbsp; &nbsp; &nbsp; ▶️ {worker.overallPlayCount}')
             if worker.genres != []:
                 st.write(f'{", ".join(worker.genres)}')
             else:
@@ -275,8 +275,19 @@ def main():
             # データをリスト形式に変換
             if worker.audioFeature is not None:
                 audio_features = worker.audioFeature[0]
+#                print(worker.audioFeature[0])
+                rawLoudness = worker.audioFeature[0]["loudness"]
+#                print(rawLoudness)
+                loudness = (rawLoudness * -1) / 60
+#                audio_features['loudness'] = loudness
+#                print(loudness)
+#                print(audio_features)
+#                print(f'fds {audio_features["loudness"]}')
+##                audio_features["loudness"] = (audio_features["loudness"] + 60) / 60.0
+ #               print(audio_features["loudness"])
                 labels = ['danceability', 'energy', 'speechiness', 'acousticness', 'instrumentalness', 'liveness','loudness', 'valence']
-                values = [audio_features[label] for label in labels]
+#                values = [audio_features[label] for label in labels]
+                values = [audio_features['danceability'], audio_features['energy'], audio_features['speechiness'], audio_features['acousticness'], audio_features['instrumentalness'], audio_features['liveness'], loudness, audio_features['valence']]
                 
                 # レーダーチャートを作成
                 fig = go.Figure()
@@ -284,9 +295,19 @@ def main():
                 fig.update_layout(width=400, height=400, polar=dict(radialaxis=dict( visible=True, range=[0, 1] ) ), showlegend=False)
                 st.plotly_chart(fig)
             
-            st.markdown(":violet[__Related artists__]")
-            for artist in worker.related:
-                st.write(artist[0])
+            st.markdown(":violet[__Related artists__]")            
+            for item in worker.related:
+                with st.container(border=True):
+                    col1, col2, col3 = st.columns([1, 3, 8], vertical_alignment="center")
+                    with col1:
+                        st.image(item[2], width=50)
+                    with col2:
+                        st.markdown(f'[{item[0]}]({item[1]})')
+                    with col3:
+                        pass
+            
+            # for artist in worker.related:
+            #     st.write(artist[0])
             
         else:
             st.markdown(f'Nothing playing')
