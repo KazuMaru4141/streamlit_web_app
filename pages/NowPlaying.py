@@ -4,6 +4,8 @@ import time
 import pytz
 import datetime
 import pylast
+import plotly.express as px
+import plotly.graph_objects as go
 
 import streamlit as st
 from streamlit_autorefresh import st_autorefresh
@@ -62,6 +64,8 @@ class Worker(threading.Thread):
                         appendList = [artist["name"], artist["external_urls"]["spotify"]]
                         related.append(appendList)
                     self.related = related
+                    
+                    self.audioFeature = self.sp.getAudioFeature(self.spotify, currentTrack["item"]["id"])
             else:
                 self.init_parameter()
             
@@ -80,6 +84,7 @@ class Worker(threading.Thread):
         self.artistPlayCount = 0
         self.albumPlayCount = 0
         self.trackPlayCount = 0
+        self.audioFeature = None
 
 class SpreadSheetUpdater(threading.Thread):
     def __init__(self, **kwargs):
@@ -266,6 +271,18 @@ def main():
                 st.write(f'{", ".join(worker.genres)}')
             else:
                 st.write(f'-')
+            
+            # データをリスト形式に変換
+            if worker.audioFeature is not None:
+                audio_features = worker.audioFeature[0]
+                labels = ['danceability', 'energy', 'speechiness', 'acousticness', 'instrumentalness', 'liveness','valence']
+                values = [audio_features[label] for label in labels]
+                
+                # レーダーチャートを作成
+                fig = go.Figure()
+                fig.add_trace(go.Scatterpolar( r=values, theta=labels, fill='toself' ))
+                fig.update_layout(width=400, height=400, polar=dict(radialaxis=dict( visible=True, range=[0, 1] ) ), showlegend=False)
+                st.plotly_chart(fig)
             
             st.markdown(":violet[__Related artists__]")
             for artist in worker.related:

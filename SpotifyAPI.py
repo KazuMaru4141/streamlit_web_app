@@ -42,3 +42,7 @@ class SpotifyCtrl:
     
     def getRecentPlayedTracs(spotify):
         return spotify.current_user_recently_played(limit=50)
+
+    def getAudioFeature(spotify, trackId):
+        return spotify.audio_features(trackId)
+        
