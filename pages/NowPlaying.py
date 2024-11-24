@@ -256,7 +256,7 @@ def main():
         if worker.now_playing != None:
 #            st.markdown(f'{worker.i}')
             if worker.album_cover_image is not None:
-                st.image(worker.album_cover_image, width=100)
+                st.image(worker.album_cover_image, width=80)
                 
             if worker2.isLikedInit == True:
                 st.button('♥️', on_click=thread_manager.onLiked)
