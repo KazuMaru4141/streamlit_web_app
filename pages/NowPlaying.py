@@ -275,13 +275,13 @@ def main():
             # データをリスト形式に変換
             if worker.audioFeature is not None:
                 audio_features = worker.audioFeature[0]
-                labels = ['danceability', 'energy', 'speechiness', 'acousticness', 'instrumentalness', 'liveness','valence']
+                labels = ['danceability', 'energy', 'speechiness', 'acousticness', 'instrumentalness', 'liveness','loudness', 'valence']
                 values = [audio_features[label] for label in labels]
                 
                 # レーダーチャートを作成
                 fig = go.Figure()
                 fig.add_trace(go.Scatterpolar( r=values, theta=labels, fill='toself' ))
-                fig.update_layout(width=400, height=400, polar=dict(radialaxis=dict( visible=True, range=[0, 1] ) ), showlegend=False)
+                fig.update_layout(width=400, height=300, polar=dict(radialaxis=dict( visible=True, range=[0, 1] ) ), showlegend=False)
                 st.plotly_chart(fig)
             
             st.markdown(":violet[__Related artists__]")
