@@ -281,7 +281,7 @@ def main():
                 # レーダーチャートを作成
                 fig = go.Figure()
                 fig.add_trace(go.Scatterpolar( r=values, theta=labels, fill='toself' ))
-                fig.update_layout(width=400, height=300, polar=dict(radialaxis=dict( visible=True, range=[0, 1] ) ), showlegend=False)
+                fig.update_layout(width=400, height=400, polar=dict(radialaxis=dict( visible=True, range=[0, 1] ) ), showlegend=False)
                 st.plotly_chart(fig)
             
             st.markdown(":violet[__Related artists__]")
