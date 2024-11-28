@@ -66,7 +66,8 @@ class Worker(threading.Thread):
                     #     related.append(appendList)
                     self.related = ""
                     
-                    self.audioFeature = self.sp.getAudioFeature(self.spotify, currentTrack["item"]["id"])
+#                    self.audioFeature = self.sp.getAudioFeature(self.spotify, currentTrack["item"]["id"])
+
             else:
                 self.init_parameter()
             
@@ -273,38 +274,38 @@ def main():
                 st.write(f'-')
             
             # データをリスト形式に変換
-            if worker.audioFeature is not None:
-                audio_features = worker.audioFeature[0]
-#                print(worker.audioFeature[0])
-                rawLoudness = worker.audioFeature[0]["loudness"]
-#                print(rawLoudness)
-                loudness = (rawLoudness * -1) / 60
-#                audio_features['loudness'] = loudness
-#                print(loudness)
-#                print(audio_features)
-#                print(f'fds {audio_features["loudness"]}')
-##                audio_features["loudness"] = (audio_features["loudness"] + 60) / 60.0
- #               print(audio_features["loudness"])
-                labels = ['danceability', 'energy', 'speechiness', 'acousticness', 'instrumentalness', 'liveness','loudness', 'valence']
-#                values = [audio_features[label] for label in labels]
-                values = [audio_features['danceability'], audio_features['energy'], audio_features['speechiness'], audio_features['acousticness'], audio_features['instrumentalness'], audio_features['liveness'], loudness, audio_features['valence']]
+#             if worker.audioFeature is not None:
+#                 audio_features = worker.audioFeature[0]
+# #                print(worker.audioFeature[0])
+#                 rawLoudness = worker.audioFeature[0]["loudness"]
+# #                print(rawLoudness)
+#                 loudness = (rawLoudness * -1) / 60
+# #                audio_features['loudness'] = loudness
+# #                print(loudness)
+# #                print(audio_features)
+# #                print(f'fds {audio_features["loudness"]}')
+# ##                audio_features["loudness"] = (audio_features["loudness"] + 60) / 60.0
+#  #               print(audio_features["loudness"])
+#                 labels = ['danceability', 'energy', 'speechiness', 'acousticness', 'instrumentalness', 'liveness','loudness', 'valence']
+# #                values = [audio_features[label] for label in labels]
+#                 values = [audio_features['danceability'], audio_features['energy'], audio_features['speechiness'], audio_features['acousticness'], audio_features['instrumentalness'], audio_features['liveness'], loudness, audio_features['valence']]
                 
-                # レーダーチャートを作成
-                fig = go.Figure()
-                fig.add_trace(go.Scatterpolar( r=values, theta=labels, fill='toself' ))
-                fig.update_layout(width=400, height=400, polar=dict(radialaxis=dict( visible=True, range=[0, 1] ) ), showlegend=False)
-                st.plotly_chart(fig)
+#                 # レーダーチャートを作成
+#                 fig = go.Figure()
+#                 fig.add_trace(go.Scatterpolar( r=values, theta=labels, fill='toself' ))
+#                 fig.update_layout(width=400, height=400, polar=dict(radialaxis=dict( visible=True, range=[0, 1] ) ), showlegend=False)
+#                 st.plotly_chart(fig)
             
-            st.markdown(":violet[__Related artists__]")            
-            for item in worker.related:
-                with st.container(border=True):
-                    col1, col2, col3 = st.columns([1, 3, 8], vertical_alignment="center")
-                    with col1:
-                        st.image(item[2], width=50)
-                    with col2:
-                        st.markdown(f'[{item[0]}]({item[1]})')
-                    with col3:
-                        pass
+            # st.markdown(":violet[__Related artists__]")            
+            # for item in worker.related:
+            #     with st.container(border=True):
+            #         col1, col2, col3 = st.columns([1, 3, 8], vertical_alignment="center")
+            #         with col1:
+            #             st.image(item[2], width=50)
+            #         with col2:
+            #             st.markdown(f'[{item[0]}]({item[1]})')
+            #         with col3:
+            #             pass
             
             # for artist in worker.related:
             #     st.write(artist[0])
