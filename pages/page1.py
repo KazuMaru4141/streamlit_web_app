@@ -71,7 +71,8 @@ def updateSessionState(st):
         st.session_state.trackInfo["type"] = currentTrack["item"]["album"]["type"]
         st.session_state.trackInfo["total_tracks"] = currentTrack["item"]["album"]["total_tracks"]
 
-        artistInfo = spotify.artist(st.session_state.trackInfo["artistID"])
+        artistInfo = sp.get_related_artistInfo(st.session_state.trackInfo["artistID"])
+#        artistInfo = spotify.artist(st.session_state.trackInfo["artistID"])
         relatedArtists = spotify.artist_related_artists(st.session_state.trackInfo["artistID"])
         st.session_state.trackInfo["genre"] = artistInfo["genres"]
 
