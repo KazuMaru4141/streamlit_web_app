@@ -73,7 +73,7 @@ def updateSessionState(st):
 
         artistInfo = sp.get_related_artistInfo(st.session_state.trackInfo["artistID"])
 #        artistInfo = spotify.artist(st.session_state.trackInfo["artistID"])
-        relatedArtists = spotify.artist_related_artists(st.session_state.trackInfo["artistID"])
+        relatedArtists = spotify.artist_related_artists(spotify, st.session_state.trackInfo["artistID"])
         st.session_state.trackInfo["genre"] = artistInfo["genres"]
 
         related = []
