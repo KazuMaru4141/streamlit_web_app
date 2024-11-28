@@ -84,8 +84,8 @@ def updateSessionState(st):
         #     st.session_state.trackInfo["related"] = related
         # else: 
         st.session_state.trackInfo["related"] = ""
-        st.session_state.trackInfo["artistImg"] = artist["images"][0]["url"]
-        st.session_state.trackInfo["artistPopularity"] = artist["popularity"]
+        st.session_state.trackInfo["artistImg"] = artistInfo["images"][0]["url"]
+        st.session_state.trackInfo["artistPopularity"] = artistInfo["popularity"]
         
         now_playing = pc.getNowPlaying(lastfm_user)
         st.session_state.playCount["artistPlayCount"] = pc.getArtistPlayCount(lastfm_user, now_playing)
