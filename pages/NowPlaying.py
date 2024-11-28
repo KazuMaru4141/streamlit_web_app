@@ -59,12 +59,12 @@ class Worker(threading.Thread):
                     artistInfo = self.spotify.artist(currentTrack["item"]["artists"][0]["id"])
                     self.genres = artistInfo["genres"]
                     
-                    relatedArtists = self.sp.get_related_artistInfo(self.spotify, currentTrack["item"]["artists"][0]["id"])
-                    related = []
-                    for artist in relatedArtists["artists"]:
-                        appendList = [artist["name"], artist["external_urls"]["spotify"], artist["images"][0]["url"]]
-                        related.append(appendList)
-                    self.related = related
+                    # relatedArtists = self.sp.get_related_artistInfo(self.spotify, currentTrack["item"]["artists"][0]["id"])
+                    # related = []
+                    # for artist in relatedArtists["artists"]:
+                    #     appendList = [artist["name"], artist["external_urls"]["spotify"], artist["images"][0]["url"]]
+                    #     related.append(appendList)
+                    self.related = ""
                     
                     self.audioFeature = self.sp.getAudioFeature(self.spotify, currentTrack["item"]["id"])
             else:
