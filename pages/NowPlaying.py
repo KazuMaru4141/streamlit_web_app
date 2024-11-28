@@ -59,7 +59,7 @@ class Worker(threading.Thread):
                     artistInfo = self.spotify.artist(currentTrack["item"]["artists"][0]["id"])
                     self.genres = artistInfo["genres"]
                     
-                    relatedArtists = self.spotify.artist_related_artists(currentTrack["item"]["artists"][0]["id"])
+                    relatedArtists = self.sp.get_related_artistInfo(self.spotify, currentTrack["item"]["artists"][0]["id"])
                     related = []
                     for artist in relatedArtists["artists"]:
                         appendList = [artist["name"], artist["external_urls"]["spotify"], artist["images"][0]["url"]]
