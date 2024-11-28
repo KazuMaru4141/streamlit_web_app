@@ -76,10 +76,13 @@ def updateSessionState(st):
         st.session_state.trackInfo["genre"] = artistInfo["genres"]
 
         related = []
-        for artist in relatedArtists["artists"]:
-            appendList = [artist["name"], artist["external_urls"]["spotify"]]
-            related.append(appendList)
-        st.session_state.trackInfo["related"] = related
+        if relatedArtists != "":
+            for artist in relatedArtists["artists"]:
+                appendList = [artist["name"], artist["external_urls"]["spotify"]]
+                related.append(appendList)
+            st.session_state.trackInfo["related"] = related
+        else: 
+            st.session_state.trackInfo["related"] = ""
         st.session_state.trackInfo["artistImg"] = artist["images"][0]["url"]
         st.session_state.trackInfo["artistPopularity"] = artist["popularity"]
         
@@ -190,10 +193,11 @@ if currentTrack != None:
 
     st.markdown('##### Related Artists')
     
-    for artist in st.session_state.trackInfo["related"]:
-        link = artist[1]
-        linkLabel = artist[0]
-        st.write(artist[0])
+    if st.session_state.trackInfo["related"] != "":
+        for artist in st.session_state.trackInfo["related"]:
+            link = artist[1]
+            linkLabel = artist[0]
+            st.write(artist[0])
                 
 else:
     st.text(f'Track is not playing')

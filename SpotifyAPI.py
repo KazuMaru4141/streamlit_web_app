@@ -28,7 +28,10 @@ class SpotifyCtrl:
         return artistInfo
 
     def get_related_artistInfo(spotify, artistID):
-        relatedArtistInfo = spotify.artist_related_artists(artistID)
+        try:
+            relatedArtistInfo = spotify.artist_related_artists(artistID)
+        except:
+            relatedArtistInfo = ""
         return relatedArtistInfo
     
     def addLikedTrackToPlaylist(spotify, trackUri):
