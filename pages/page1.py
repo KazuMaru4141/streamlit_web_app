@@ -76,14 +76,14 @@ def updateSessionState(st):
 #        relatedArtists = spotify.artist_related_artists(spotify, st.session_state.trackInfo["artistID"])
         st.session_state.trackInfo["genre"] = artistInfo["genres"]
 
-        related = []
-        if relatedArtists != "":
-            for artist in relatedArtists["artists"]:
-                appendList = [artist["name"], artist["external_urls"]["spotify"]]
-                related.append(appendList)
-            st.session_state.trackInfo["related"] = related
-        else: 
-            st.session_state.trackInfo["related"] = ""
+        # related = []
+        # if relatedArtists != "":
+        #     for artist in relatedArtists["artists"]:
+        #         appendList = [artist["name"], artist["external_urls"]["spotify"]]
+        #         related.append(appendList)
+        #     st.session_state.trackInfo["related"] = related
+        # else: 
+        st.session_state.trackInfo["related"] = ""
         st.session_state.trackInfo["artistImg"] = artist["images"][0]["url"]
         st.session_state.trackInfo["artistPopularity"] = artist["popularity"]
         
