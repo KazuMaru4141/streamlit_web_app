@@ -211,7 +211,7 @@ def onclickSaved():
 #         st.write(f'Already Added')
 
 def readSpreadSheet(st):
-    if st.session_state.LikedInfo == None:
+    if st.session_state.gs == None:
         st.write("read spread sheet")
         st.session_state.gs = GspreadCtrl
         st.session_state.ws, st.session_state.wb, st.session_state.LikedInfo = st.session_state.gs.connect_gspread(st.secrets.SP_SHEET_KEY.Key_LikedSongs)
