@@ -175,41 +175,6 @@ def onclickSaved():
     ws.append_rows(appendList)
     st.write(f'Successfully Saved!')
 
-# def onChangeStar():
-#     gs = GspreadCtrl
-#     SP_SHEET_KEY = st.secrets.SP_SHEET_KEY.Key_LikedSongs
-#     ws, wb, LikedInfo = gs.connect_gspread(SP_SHEET_KEY)
-#     trackIdList = ws.col_values(6)
-    
-#     if st.session_state.trackInfo["trackID"] not in trackIdList: 
-#         dt_now = dt_now = datetime.datetime.now(tz=pytz.timezone("Asia/Tokyo"))
-#         today = str(dt_now.year) + "-" + str(dt_now.month) + "-" + str(dt_now.day)
-#         appendList = []
-#         appendList.append([
-#             today,
-#             st.session_state.trackInfo["trackName"],
-#             st.session_state.trackInfo["albumName"],
-#             st.session_state.trackInfo["artistName"],
-#             st.session_state.trackInfo["albumImg"],
-#             st.session_state.trackInfo["trackID"],
-#             "",
-#             st.session_state.trackInfo["trackURL"],
-#             str(1),
-#         ])
-#         ws.append_rows(appendList)
-#         sp.addLikedTrackToPlaylist(spotify, st.session_state.trackInfo["trackURI"])
-#         st.write(f'Successfully Added')
-#     else:
-#         cell = ws.find(st.session_state.trackInfo["trackName"])
-#         row = int(cell.row)
-#         if (ws.cell(row, 9).value == None):
-#             ws.update_cell(cell.row, 9, "1")
-#         else:
-#             impression = int(ws.cell(row, 9).value)
-#             impression = impression + 1
-#             ws.update_cell(cell.row, 9, impression)
-#         st.write(f'Already Added')
-
 def readSpreadSheet(st):
     if st.session_state.gs == None:
         st.write("read spread sheet")
@@ -252,6 +217,24 @@ if currentTrack != None:
              )
         rate = star_options[rate]
     else:
+        dt_now = dt_now = datetime.datetime.now(tz=pytz.timezone("Asia/Tokyo"))
+        today = str(dt_now.year) + "-" + str(dt_now.month) + "-" + str(dt_now.day)
+        appendList = []
+        appendList.append([
+            today,
+            st.session_state.trackInfo["trackName"],
+            st.session_state.trackInfo["albumName"],
+            st.session_state.trackInfo["artistName"],
+            st.session_state.trackInfo["albumImg"],
+            st.session_state.trackInfo["trackID"],
+            "",
+            st.session_state.trackInfo["trackURL"],
+            str(2),
+        ])
+        st.session_state.ws.append_rows(appendList)
+        # sp.addLikedTrackToPlaylist(spotify, st.session_state.trackInfo["trackURI"])
+        # st.write(f'Successfully Added')
+        current_rate = 0
         rate = st.radio("rate this track", 
              ["★", "★★", "★★★", "★★★★", "★★★★★"],
              index=None
