@@ -163,9 +163,51 @@ def onclickSaved():
     ws.append_rows(appendList)
     st.write(f'Successfully Saved!')
 
+def onChangeStar():
+    gs = GspreadCtrl
+    SP_SHEET_KEY = st.secrets.SP_SHEET_KEY.Key_LikedSongs
+    ws, wb, LikedInfo = gs.connect_gspread(SP_SHEET_KEY)
+    trackIdList = ws.col_values(6)
+    
+    if st.session_state.trackInfo["trackID"] not in trackIdList: 
+        dt_now = dt_now = datetime.datetime.now(tz=pytz.timezone("Asia/Tokyo"))
+        today = str(dt_now.year) + "-" + str(dt_now.month) + "-" + str(dt_now.day)
+        appendList = []
+        appendList.append([
+            today,
+            st.session_state.trackInfo["trackName"],
+            st.session_state.trackInfo["albumName"],
+            st.session_state.trackInfo["artistName"],
+            st.session_state.trackInfo["albumImg"],
+            st.session_state.trackInfo["trackID"],
+            "",
+            st.session_state.trackInfo["trackURL"],
+            str(1),
+        ])
+        ws.append_rows(appendList)
+        sp.addLikedTrackToPlaylist(spotify, st.session_state.trackInfo["trackURI"])
+        st.write(f'Successfully Added')
+    else:
+        cell = ws.find(st.session_state.trackInfo["trackName"])
+        row = int(cell.row)
+        if (ws.cell(row, 9).value == None):
+            ws.update_cell(cell.row, 9, "1")
+        else:
+            impression = int(ws.cell(row, 9).value)
+            impression = impression + 1
+            ws.update_cell(cell.row, 9, impression)
+        st.write(f'Already Added')
+
+def readSpreadSheet(st):
+    if st.session_state.LikedInfo == None:
+        st.write("read spread sheet")
+        st.session_state.gs = GspreadCtrl
+        st.session_state.ws, st.session_state.wb, st.session_state.LikedInfo = st.session_state.gs.connect_gspread(st.secrets.SP_SHEET_KEY.Key_LikedSongs)
+
 ############### Main #######################################
-st.write(f'#### Now Playing')
+#st.write(f'#### Now Playing')
 initSessionState(st)
+readSpreadSheet(st)
 
 currentTrack = spotify.current_user_playing_track()
 
@@ -173,32 +215,60 @@ currentTrack = spotify.current_user_playing_track()
 if currentTrack != None:
     updateSessionState(st)
     
-    st.image(st.session_state.trackInfo["albumImg"], width=100)    
-    st.button('♥️', on_click=onclickLiked)
+    st.image(st.session_state.trackInfo["albumImg"], width=70)    
+#    st.button('♥️', on_click=onclickLiked)
     st.button('✅', on_click=onclickSaved)
     
-    st.write(f'{st.session_state.trackInfo["trackName"]} by {st.session_state.trackInfo["artistName"]}')
-    st.write(st.session_state.trackInfo["releaseDate"])
+    st.write(f'__{st.session_state.trackInfo["trackName"]}__ by __{st.session_state.trackInfo["artistName"]}__ ({st.session_state.trackInfo["releaseDate"]})')
+    st.markdown(f'🎤 {st.session_state.playCount["artistPlayCount"]} &nbsp; &nbsp; 💿 {st.session_state.playCount["albumPlayCount"]}  &nbsp; &nbsp; 🎵 {st.session_state.playCount["track_play_count"]}  \n ⏭️ {st.session_state.playCount["playCountToday"]} &nbsp; &nbsp; &nbsp; ▶️ {st.session_state.playCount["OverallPlayCount"]}')    
+    star_options = {
+        "★": 1,
+        "★★" : 2, 
+        "★★★" : 3, 
+        "★★★★" : 4, 
+        "★★★★★" : 5
+    }
+    trackIdList = st.session_state.ws.col_values(6)
+    if st.session_state.trackInfo["trackID"] in trackIdList:
+        cell = st.session_state.ws.find(st.session_state.trackInfo["trackName"])
+        row = int(cell.row)
+        current_rate = int(st.session_state.ws.cell(row, 9).value)
+        
+        rate = st.radio("Rate", 
+             ["★", "★★", "★★★", "★★★★", "★★★★★"],
+             index=(current_rate-1)
+             )
+        rate = star_options[rate]
+    else:
+        rate = st.radio("rate this track", 
+             ["★", "★★", "★★★", "★★★★", "★★★★★"],
+             index=None
+             ) 
+        rate = 0
     
-    st.markdown('##### Genre')
+    if (current_rate != rate):    
+        st.write("rating changed")
+        st.session_state.ws.update_cell(cell.row, 9, rate)
+    
+#    st.markdown('##### Genre')
     if st.session_state.trackInfo["genre"] != []:
         st.write(f'{", ".join(st.session_state.trackInfo["genre"])}')
     else:
         st.write(f'-')
 
-    st.write(f'artist {st.session_state.playCount["artistPlayCount"]}')
-    st.write(f'album {st.session_state.playCount["albumPlayCount"]}')
-    st.write(f'track {st.session_state.playCount["track_play_count"]}')
-    st.write(f'today  {st.session_state.playCount["playCountToday"]}')
-    st.write(f'total scrobbles {st.session_state.playCount["OverallPlayCount"]}')
+    # st.write(f'artist {st.session_state.playCount["artistPlayCount"]}')
+    # st.write(f'album {st.session_state.playCount["albumPlayCount"]}')
+    # st.write(f'track {st.session_state.playCount["track_play_count"]}')
+    # st.write(f'today  {st.session_state.playCount["playCountToday"]}')
+    # st.write(f'total scrobbles {st.session_state.playCount["OverallPlayCount"]}')
 
-    st.markdown('##### Related Artists')
+    # st.markdown('##### Related Artists')
     
-    if st.session_state.trackInfo["related"] != "":
-        for artist in st.session_state.trackInfo["related"]:
-            link = artist[1]
-            linkLabel = artist[0]
-            st.write(artist[0])
+    # if st.session_state.trackInfo["related"] != "":
+    #     for artist in st.session_state.trackInfo["related"]:
+    #         link = artist[1]
+    #         linkLabel = artist[0]
+    #         st.write(artist[0])
                 
 else:
     st.text(f'Track is not playing')
