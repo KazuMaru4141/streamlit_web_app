@@ -237,7 +237,7 @@ if currentTrack != None:
         current_rate = 0
         rate = st.radio("rate this track", 
              ["★", "★★", "★★★", "★★★★", "★★★★★"],
-             index=None
+             index=1
              ) 
         rate = 0
     
