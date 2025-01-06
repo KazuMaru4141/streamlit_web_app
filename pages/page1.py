@@ -82,29 +82,32 @@ def updateSessionState(st):
         st.session_state.trackInfo["albumImg"] = currentTrack["item"]["album"]["images"][0]["url"]
         st.session_state.trackInfo["type"] = currentTrack["item"]["album"]["type"]
         st.session_state.trackInfo["total_tracks"] = currentTrack["item"]["album"]["total_tracks"]
-
-#        artistInfo = sp.get_related_artistInfo(st.session_state.trackInfo["artistID"])
         artistInfo = spotify.artist(st.session_state.trackInfo["artistID"])
-#        relatedArtists = spotify.artist_related_artists(spotify, st.session_state.trackInfo["artistID"])
         st.session_state.trackInfo["genre"] = artistInfo["genres"]
-
-        # related = []
-        # if relatedArtists != "":
-        #     for artist in relatedArtists["artists"]:
-        #         appendList = [artist["name"], artist["external_urls"]["spotify"]]
-        #         related.append(appendList)
-        #     st.session_state.trackInfo["related"] = related
-        # else: 
         st.session_state.trackInfo["related"] = ""
         st.session_state.trackInfo["artistImg"] = artistInfo["images"][0]["url"]
         st.session_state.trackInfo["artistPopularity"] = artistInfo["popularity"]
         
-        now_playing = pc.getNowPlaying(lastfm_user)
-        st.session_state.playCount["artistPlayCount"] = pc.getArtistPlayCount(lastfm_user, now_playing)
-        st.session_state.playCount["albumPlayCount"] = pc.getAlbumPlayCount(lastfm_user, now_playing)
-        st.session_state.playCount["track_play_count"] = pc.getTrackPlayCount(lastfm_user, now_playing)
-        st.session_state.playCount["playCountToday"] = pc.getPlayCountToday(lastfm_user)
-        st.session_state.playCount["OverallPlayCount"] = pc.getOverallPlayCount(lastfm_user)
+        try:
+            now_playing = pc.getNowPlaying(lastfm_user)
+            if now_playing is not None:
+                st.session_state.playCount["artistPlayCount"] = pc.getArtistPlayCount(lastfm_user, now_playing)
+                st.session_state.playCount["albumPlayCount"] = pc.getAlbumPlayCount(lastfm_user, now_playing)
+                st.session_state.playCount["track_play_count"] = pc.getTrackPlayCount(lastfm_user, now_playing)
+                st.session_state.playCount["playCountToday"] = pc.getPlayCountToday(lastfm_user)
+                st.session_state.playCount["OverallPlayCount"] = pc.getOverallPlayCount(lastfm_user)
+            else:
+                st.session_state.playCount["artistPlayCount"] = 0
+                st.session_state.playCount["albumPlayCount"] = 0
+                st.session_state.playCount["track_play_count"] = 0
+                st.session_state.playCount["playCountToday"] = 0
+                st.session_state.playCount["OverallPlayCount"] = 0
+        except:
+            st.session_state.playCount["artistPlayCount"] = 0
+            st.session_state.playCount["albumPlayCount"] = 0
+            st.session_state.playCount["track_play_count"] = 0
+            st.session_state.playCount["playCountToday"] = 0
+            st.session_state.playCount["OverallPlayCount"] = 0
 
 def onclickLiked():
     gs = GspreadCtrl
@@ -188,7 +191,6 @@ readSpreadSheet(st)
 
 currentTrack = spotify.current_user_playing_track()
 
-#print(currentTrack)
 if currentTrack != None:
     updateSessionState(st)
     
@@ -232,14 +234,12 @@ if currentTrack != None:
             str(2),
         ])
         st.session_state.ws.append_rows(appendList)
-        # sp.addLikedTrackToPlaylist(spotify, st.session_state.trackInfo["trackURI"])
-        # st.write(f'Successfully Added')
-        current_rate = 0
+        current_rate = 2
         rate = st.radio("rate this track", 
              ["★", "★★", "★★★", "★★★★", "★★★★★"],
              index=1
              ) 
-        rate = 0
+        rate = star_options[rate]
     
     if (current_rate != rate):    
         st.write("rating changed")
@@ -250,21 +250,7 @@ if currentTrack != None:
         st.write(f'{", ".join(st.session_state.trackInfo["genre"])}')
     else:
         st.write(f'-')
-
-    # st.write(f'artist {st.session_state.playCount["artistPlayCount"]}')
-    # st.write(f'album {st.session_state.playCount["albumPlayCount"]}')
-    # st.write(f'track {st.session_state.playCount["track_play_count"]}')
-    # st.write(f'today  {st.session_state.playCount["playCountToday"]}')
-    # st.write(f'total scrobbles {st.session_state.playCount["OverallPlayCount"]}')
-
-    # st.markdown('##### Related Artists')
-    
-    # if st.session_state.trackInfo["related"] != "":
-    #     for artist in st.session_state.trackInfo["related"]:
-    #         link = artist[1]
-    #         linkLabel = artist[0]
-    #         st.write(artist[0])
-                
+                        
 else:
     st.text(f'Track is not playing')
     
