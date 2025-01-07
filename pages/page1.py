@@ -88,12 +88,26 @@ def updateSessionState(st):
         st.session_state.trackInfo["artistImg"] = artistInfo["images"][0]["url"]
         st.session_state.trackInfo["artistPopularity"] = artistInfo["popularity"]
         
-        now_playing = pc.getNowPlaying(lastfm_user)
-        st.session_state.playCount["artistPlayCount"] = pc.getArtistPlayCount(lastfm_user, now_playing)
-        st.session_state.playCount["albumPlayCount"] = pc.getAlbumPlayCount(lastfm_user, now_playing)
-        st.session_state.playCount["track_play_count"] = pc.getTrackPlayCount(lastfm_user, now_playing)
-        st.session_state.playCount["playCountToday"] = pc.getPlayCountToday(lastfm_user)
-        st.session_state.playCount["OverallPlayCount"] = pc.getOverallPlayCount(lastfm_user)
+        try:
+            now_playing = pc.getNowPlaying(lastfm_user)
+            if now_playing is not None:
+                st.session_state.playCount["artistPlayCount"] = pc.getArtistPlayCount(lastfm_user, now_playing)
+                st.session_state.playCount["albumPlayCount"] = pc.getAlbumPlayCount(lastfm_user, now_playing)
+                st.session_state.playCount["track_play_count"] = pc.getTrackPlayCount(lastfm_user, now_playing)
+                st.session_state.playCount["playCountToday"] = pc.getPlayCountToday(lastfm_user)
+                st.session_state.playCount["OverallPlayCount"] = pc.getOverallPlayCount(lastfm_user)
+            else:
+                st.session_state.playCount["artistPlayCount"] = 0
+                st.session_state.playCount["albumPlayCount"] = 0
+                st.session_state.playCount["track_play_count"] = 0
+                st.session_state.playCount["playCountToday"] = 0
+                st.session_state.playCount["OverallPlayCount"] = 0
+        except:
+            st.session_state.playCount["artistPlayCount"] = 0
+            st.session_state.playCount["albumPlayCount"] = 0
+            st.session_state.playCount["track_play_count"] = 0
+            st.session_state.playCount["playCountToday"] = 0
+            st.session_state.playCount["OverallPlayCount"] = 0
 
 def onclickLiked():
     gs = GspreadCtrl
@@ -177,7 +191,6 @@ readSpreadSheet(st)
 
 currentTrack = spotify.current_user_playing_track()
 
-#print(currentTrack)
 if currentTrack != None:
     updateSessionState(st)
     
@@ -221,14 +234,12 @@ if currentTrack != None:
             str(2),
         ])
         st.session_state.ws.append_rows(appendList)
-        # sp.addLikedTrackToPlaylist(spotify, st.session_state.trackInfo["trackURI"])
-        # st.write(f'Successfully Added')
-        current_rate = 0
+        current_rate = 2
         rate = st.radio("rate this track", 
              ["★", "★★", "★★★", "★★★★", "★★★★★"],
              index=1
              ) 
-        rate = 0
+        rate = star_options[rate]
     
     if (current_rate != rate):    
         st.write("rating updated")
@@ -238,7 +249,11 @@ if currentTrack != None:
         st.write(f'{", ".join(st.session_state.trackInfo["genre"])}')
     else:
         st.write(f'-')
+<<<<<<< HEAD
                 
+=======
+                        
+>>>>>>> a3530fe9f0dbd0fa1505561f2704f2f50bbeb0f9
 else:
     st.text(f'Track is not playing')
     

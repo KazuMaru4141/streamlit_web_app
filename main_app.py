@@ -11,7 +11,7 @@ sp = SpotifyCtrl
 gs = GspreadCtrl
 auth_manager, spotify = sp.create_spotify()
 
-st.title('create tweet')
+#st.title('create tweet')
 
 with st.form(key='prifile_form'):
     albumID = st.text_input('Album ID')
@@ -32,19 +32,19 @@ with st.form(key='prifile_form'):
         else:
             st.text(f'ジャンル:-')
             
-        relatedArtistInfo = sp.get_related_artistInfo(spotify, albumInfo["artists"][0]["id"])
-        count = 0
-        outRelatedArtist = []
-        for artist in relatedArtistInfo["artists"]:
-            outRelatedArtist.append(artist["name"])
-            count = count + 1
-            if count >= 3:
-                break
+        # relatedArtistInfo = sp.get_related_artistInfo(spotify, albumInfo["artists"][0]["id"])
+        # count = 0
+        # outRelatedArtist = []
+        # for artist in relatedArtistInfo["artists"]:
+        #     outRelatedArtist.append(artist["name"])
+        #     count = count + 1
+        #     if count >= 3:
+        #         break
         
-        if outRelatedArtist != []:
-            st.text(f'関連アーティスト:{", ".join(outRelatedArtist)}')
-        else:
-            st.text(f'関連アーティスト:-')
+        # if outRelatedArtist != []:
+        #     st.text(f'関連アーティスト:{", ".join(outRelatedArtist)}')
+        # else:
+        #     st.text(f'関連アーティスト:-')
         
         dt_now = dt_now = datetime.datetime.now(tz=pytz.timezone("Asia/Tokyo"))
         year = str(dt_now.year)
