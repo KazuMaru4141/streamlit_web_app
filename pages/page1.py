@@ -35,6 +35,7 @@ def initSessionState(st):
         st.session_state.trackInfo["artistURL"] = ""
         st.session_state.trackInfo["albumName"] = ""
         st.session_state.trackInfo["albumID"] = ""
+        st.session_state.trackInfo["albumTracks"] = {} 
         st.session_state.trackInfo["albumURL"] = ""
         st.session_state.trackInfo["releaseDate"] = ""
         st.session_state.trackInfo["albumImg"] = ""
@@ -75,7 +76,11 @@ def updateSessionState(st):
         st.session_state.trackInfo["artistID"] = currentTrack["item"]["artists"][0]["id"]
         st.session_state.trackInfo["artistURL"] = currentTrack["item"]["artists"][0]["external_urls"]["spotify"]
         st.session_state.trackInfo["albumName"] = currentTrack["item"]["album"]["name"]
-        st.session_state.trackInfo["albumID"] = currentTrack["item"]["album"]["id"]
+        
+        if st.session_state.trackInfo["albumID"] != currentTrack["item"]["album"]["id"]:
+            st.session_state.trackInfo["albumID"] = currentTrack["item"]["album"]["id"]
+            st.session_state.trackInfo["albumTracks"] = spotify.album_tracks(currentTrack["item"]["album"]["id"])
+            
         st.session_state.trackInfo["albumURL"] = currentTrack["item"]["album"]["external_urls"]["spotify"]
         st.session_state.trackInfo["releaseDate"] = currentTrack["item"]["album"]["release_date"]
         st.session_state.trackInfo["albumImg"] = currentTrack["item"]["album"]["images"][0]["url"]
@@ -249,11 +254,36 @@ if currentTrack != None:
         st.write(f'{", ".join(st.session_state.trackInfo["genre"])}')
     else:
         st.write(f'-')
-<<<<<<< HEAD
-                
-=======
-                        
->>>>>>> a3530fe9f0dbd0fa1505561f2704f2f50bbeb0f9
+    
+    track_point = {
+        1: 0,
+        2: 20, 
+        3: 60, 
+        4 : 80, 
+        5 : 100
+    }
+    if st.session_state.trackInfo["albumTracks"] is not None:
+        totalTrackNum = st.session_state.trackInfo["albumTracks"]["total"]
+        
+        cnt = 1
+        album_rate = 0.0
+        for track in st.session_state.trackInfo["albumTracks"]["items"]:
+            trackname = track["name"]
+            trackid = track["id"]
+            
+            current_rate = 0
+            for likedSong in st.session_state.LikedInfo:
+                if trackid == likedSong["TrackID"]:
+                    current_rate = likedSong["Rating"]
+                    album_rate += track_point[current_rate]
+            
+            st.write(f'{cnt}. {trackname} {current_rate}')
+            cnt+=1
+        
+        st.write(f'total point {album_rate}')
+        average = album_rate / totalTrackNum
+        st.write(f'album point {average}')
+        
 else:
     st.text(f'Track is not playing')
     
