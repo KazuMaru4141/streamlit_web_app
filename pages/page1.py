@@ -179,7 +179,6 @@ def onclickSaved():
         ", ".join(st.session_state.trackInfo["genre"]),
         ""
     ])
-    print(appendList)
     ws.append_rows(appendList)
     st.write(f'Successfully Saved!')
 
@@ -223,6 +222,28 @@ if currentTrack != None:
              index=(current_rate-1)
              )
         rate = star_options[rate]
+        
+        flg = False
+        for likedSong in st.session_state.LikedInfo:
+            if st.session_state.trackInfo["trackID"] == likedSong["TrackID"]:
+                likedSong["Rating"] = rate
+                flg = True
+        
+        if flg == False:
+            dt_now = dt_now = datetime.datetime.now(tz=pytz.timezone("Asia/Tokyo"))
+            today = str(dt_now.year) + "-" + str(dt_now.month) + "-" + str(dt_now.day)
+            appendDict = {}
+            appendDict["SavedAt"] = today
+            appendDict["trackName"] = st.session_state.trackInfo["trackName"]
+            appendDict["AlbumName"] = st.session_state.trackInfo["albumName"]
+            appendDict["ArtistName"] = st.session_state.trackInfo["artistName"]
+            appendDict["AlbumImage"] = st.session_state.trackInfo["albumImg"]
+            appendDict["TrackID"] = st.session_state.trackInfo["trackID"]
+            appendDict["TrackSrc"] = ""
+            appendDict["TrackURL"] = st.session_state.trackInfo["trackURL"]
+            appendDict["Rating"] = rate
+            st.session_state.LikedInfo.append(appendDict)
+
     else:
         dt_now = dt_now = datetime.datetime.now(tz=pytz.timezone("Asia/Tokyo"))
         today = str(dt_now.year) + "-" + str(dt_now.month) + "-" + str(dt_now.day)
@@ -245,6 +266,7 @@ if currentTrack != None:
              index=1
              ) 
         rate = star_options[rate]
+
     
     if (current_rate != rate):    
         st.write("rating updated")
