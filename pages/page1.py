@@ -214,7 +214,7 @@ if currentTrack != None:
     }
     trackIdList = st.session_state.ws.col_values(6)
     if st.session_state.trackInfo["trackID"] in trackIdList:
-        cell = st.session_state.ws.find(st.session_state.trackInfo["trackName"])
+        cell = st.session_state.ws.find(st.session_state.trackInfo["trackID"])
         row = int(cell.row)
         current_rate = int(st.session_state.ws.cell(row, 9).value)
         
