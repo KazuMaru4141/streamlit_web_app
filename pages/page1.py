@@ -269,7 +269,7 @@ if currentTrack != None:
 
     
     if (current_rate != rate):    
-        st.write("rating updated")
+        st.success("rating updated")
         st.session_state.ws.update_cell(cell.row, 9, rate)
     
     if st.session_state.trackInfo["genre"] != []:
