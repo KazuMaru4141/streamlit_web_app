@@ -316,6 +316,7 @@ if currentTrack != None:
         st.markdown(f'Rate {average}')
         
         df = pd.DataFrame(album_table, columns=["Track Name", "Rate"])
+        df.index = df.index + 1
         st.dataframe(df)
         st.write(f'total point {album_rate}')
         
