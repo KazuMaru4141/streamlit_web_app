@@ -80,7 +80,6 @@ def updateSessionState(st):
         if st.session_state.trackInfo["albumID"] != currentTrack["item"]["album"]["id"]:
             st.session_state.trackInfo["albumID"] = currentTrack["item"]["album"]["id"]
             st.session_state.trackInfo["albumTracks"] = spotify.album_tracks(currentTrack["item"]["album"]["id"])
-            
         st.session_state.trackInfo["albumURL"] = currentTrack["item"]["album"]["external_urls"]["spotify"]
         st.session_state.trackInfo["releaseDate"] = currentTrack["item"]["album"]["release_date"]
         st.session_state.trackInfo["albumImg"] = currentTrack["item"]["album"]["images"][0]["url"]
@@ -184,9 +183,9 @@ def onclickSaved():
 
 def readSpreadSheet(st):
     if st.session_state.gs == None:
-        st.write("read spread sheet")
-        st.session_state.gs = GspreadCtrl
-        st.session_state.ws, st.session_state.wb, st.session_state.LikedInfo = st.session_state.gs.connect_gspread(st.secrets.SP_SHEET_KEY.Key_LikedSongs)
+        with st.spinner("Loading..."):
+            st.session_state.gs = GspreadCtrl
+            st.session_state.ws, st.session_state.wb, st.session_state.LikedInfo = st.session_state.gs.connect_gspread(st.secrets.SP_SHEET_KEY.Key_LikedSongs)
 
 ############### Main #######################################
 #st.write(f'#### Now Playing')
