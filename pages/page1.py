@@ -4,6 +4,7 @@ from streamlit_autorefresh import st_autorefresh
 from SpreadSheetAPI import GspreadCtrl
 from pylastCtrl import pylastCtrl
 import pytz
+import pandas as pd
 
 import spotipy
 import spotipy.util as util
@@ -286,8 +287,17 @@ if currentTrack != None:
     if st.session_state.trackInfo["albumTracks"] is not None:
         totalTrackNum = st.session_state.trackInfo["albumTracks"]["total"]
         
+        disp_rate = {
+            0: "☆☆☆☆☆",
+            1 : "★☆☆☆☆", 
+            2 : "★★☆☆☆", 
+            3 : "★★★☆☆", 
+            4 : "★★★★☆",
+            5 : "★★★★★"
+        }
         cnt = 1
         album_rate = 0.0
+        album_table = []
         for track in st.session_state.trackInfo["albumTracks"]["items"]:
             trackname = track["name"]
             trackid = track["id"]
@@ -297,13 +307,17 @@ if currentTrack != None:
                 if trackid == likedSong["TrackID"]:
                     current_rate = likedSong["Rating"]
                     album_rate += track_point[current_rate]
-            
-            st.write(f'{cnt}. {trackname} {current_rate}')
+            disp = disp_rate[current_rate]
+            album_table.append([trackname, disp])
+#            st.write(f'{cnt}. {trackname} {disp}')
             cnt+=1
         
-        st.write(f'total point {album_rate}')
         average = album_rate / totalTrackNum
-        st.write(f'album point {average}')
+        st.markdown(f'Rate {average}')
+        
+        df = pd.DataFrame(album_table, columns=["Track Name", "Rate"])
+        st.dataframe(df)
+        st.write(f'total point {album_rate}')
         
 else:
     st.text(f'Track is not playing')
