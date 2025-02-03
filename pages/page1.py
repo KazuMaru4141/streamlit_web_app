@@ -317,7 +317,7 @@ if currentTrack != None:
         
         df = pd.DataFrame(album_table, columns=["Track Name", "Rate"])
         df.index = df.index + 1
-        st.dataframe(df)
+        st.table(df)
         st.write(f'total point {album_rate}')
         
 else:
