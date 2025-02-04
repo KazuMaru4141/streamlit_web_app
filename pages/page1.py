@@ -45,6 +45,7 @@ def initSessionState(st):
         st.session_state.trackInfo["artistPopularity"] = ""
         st.session_state.trackInfo["type"] = ""
         st.session_state.trackInfo["total_tracks"] = ""
+        st.session_state.artistInfo = {}
     
     if 'playCount' not in st.session_state:
         #st.session_state.playCount["nowPlaying"] = ""
@@ -86,10 +87,10 @@ def updateSessionState(st):
         st.session_state.trackInfo["albumImg"] = currentTrack["item"]["album"]["images"][0]["url"]
         st.session_state.trackInfo["type"] = currentTrack["item"]["album"]["type"]
         st.session_state.trackInfo["total_tracks"] = currentTrack["item"]["album"]["total_tracks"]
-
         artistInfo = spotify.artist(st.session_state.trackInfo["artistID"])
+        st.session_state.artistInfo = artistInfo
         st.session_state.trackInfo["genre"] = artistInfo["genres"]
-
+#        print(st.session_state.artistInfo)
         st.session_state.trackInfo["artistImg"] = artistInfo["images"][0]["url"]
         st.session_state.trackInfo["artistPopularity"] = artistInfo["popularity"]
         
@@ -198,128 +199,161 @@ currentTrack = spotify.current_user_playing_track()
 if currentTrack != None:
     updateSessionState(st)
     
-    st.image(st.session_state.trackInfo["albumImg"], width=70)    
-#    st.button('♥️', on_click=onclickLiked)
-    st.button('✅', on_click=onclickSaved)
     
-    st.write(f'__{st.session_state.trackInfo["trackName"]}__ by __{st.session_state.trackInfo["artistName"]}__ ({st.session_state.trackInfo["releaseDate"]})')
-    st.markdown(f'🎤 {st.session_state.playCount["artistPlayCount"]} &nbsp; &nbsp; 💿 {st.session_state.playCount["albumPlayCount"]}  &nbsp; &nbsp; 🎵 {st.session_state.playCount["track_play_count"]}  \n ⏭️ {st.session_state.playCount["playCountToday"]} &nbsp; &nbsp; &nbsp; ▶️ {st.session_state.playCount["OverallPlayCount"]}')    
-    star_options = {
-        "★": 1,
-        "★★" : 2, 
-        "★★★" : 3, 
-        "★★★★" : 4, 
-        "★★★★★" : 5
-    }
-    trackIdList = st.session_state.ws.col_values(6)
-    if st.session_state.trackInfo["trackID"] in trackIdList:
-        cell = st.session_state.ws.find(st.session_state.trackInfo["trackID"])
-        row = int(cell.row)
-        current_rate = int(st.session_state.ws.cell(row, 9).value)
-        
-        rate = st.radio("Rate", 
-             ["★", "★★", "★★★", "★★★★", "★★★★★"],
-             index=(current_rate-1)
-             )
-        rate = star_options[rate]
-        
-        flg = False
-        for likedSong in st.session_state.LikedInfo:
-            if st.session_state.trackInfo["trackID"] == likedSong["TrackID"]:
-                likedSong["Rating"] = rate
-                flg = True
-        
-        if flg == False:
+    
+    with st.container(border=True):
+        st.markdown("### Track")
+        st.image(st.session_state.trackInfo["albumImg"], width=70)    
+    #    st.button('♥️', on_click=onclickLiked)
+        st.button('✅', on_click=onclickSaved)
+        st.write(f'__{st.session_state.trackInfo["trackName"]}__ by __{st.session_state.trackInfo["artistName"]}__ ({st.session_state.trackInfo["releaseDate"]})')
+        st.markdown(f'🎤 {st.session_state.playCount["artistPlayCount"]} &nbsp; &nbsp; 💿 {st.session_state.playCount["albumPlayCount"]}  &nbsp; &nbsp; 🎵 {st.session_state.playCount["track_play_count"]}  \n ⏭️ {st.session_state.playCount["playCountToday"]} &nbsp; &nbsp; &nbsp; ▶️ {st.session_state.playCount["OverallPlayCount"]}')    
+        # if st.session_state.trackInfo["genre"] != []:
+        #     st.write(f'{", ".join(st.session_state.trackInfo["genre"])}')
+        # else:
+        #     st.write(f'-')
+    
+    
+        star_options = {
+            "★": 1,
+            "★★" : 2, 
+            "★★★" : 3, 
+            "★★★★" : 4, 
+            "★★★★★" : 5
+        }
+        trackIdList = st.session_state.ws.col_values(6)
+        if st.session_state.trackInfo["trackID"] in trackIdList:
+            cell = st.session_state.ws.find(st.session_state.trackInfo["trackID"])
+            row = int(cell.row)
+            current_rate = int(st.session_state.ws.cell(row, 9).value)
+            
+            rate = st.radio("Rate", 
+                ["★", "★★", "★★★", "★★★★", "★★★★★"],
+                index=(current_rate-1)
+                )
+            rate = star_options[rate]
+            
+            flg = False
+            for likedSong in st.session_state.LikedInfo:
+                if st.session_state.trackInfo["trackID"] == likedSong["TrackID"]:
+                    likedSong["Rating"] = rate
+                    flg = True
+            
+            if flg == False:
+                dt_now = dt_now = datetime.datetime.now(tz=pytz.timezone("Asia/Tokyo"))
+                today = str(dt_now.year) + "-" + str(dt_now.month) + "-" + str(dt_now.day)
+                appendDict = {}
+                appendDict["SavedAt"] = today
+                appendDict["trackName"] = st.session_state.trackInfo["trackName"]
+                appendDict["AlbumName"] = st.session_state.trackInfo["albumName"]
+                appendDict["ArtistName"] = st.session_state.trackInfo["artistName"]
+                appendDict["AlbumImage"] = st.session_state.trackInfo["albumImg"]
+                appendDict["TrackID"] = st.session_state.trackInfo["trackID"]
+                appendDict["TrackSrc"] = ""
+                appendDict["TrackURL"] = st.session_state.trackInfo["trackURL"]
+                appendDict["Rating"] = rate
+                st.session_state.LikedInfo.append(appendDict)
+
+        else:
             dt_now = dt_now = datetime.datetime.now(tz=pytz.timezone("Asia/Tokyo"))
             today = str(dt_now.year) + "-" + str(dt_now.month) + "-" + str(dt_now.day)
-            appendDict = {}
-            appendDict["SavedAt"] = today
-            appendDict["trackName"] = st.session_state.trackInfo["trackName"]
-            appendDict["AlbumName"] = st.session_state.trackInfo["albumName"]
-            appendDict["ArtistName"] = st.session_state.trackInfo["artistName"]
-            appendDict["AlbumImage"] = st.session_state.trackInfo["albumImg"]
-            appendDict["TrackID"] = st.session_state.trackInfo["trackID"]
-            appendDict["TrackSrc"] = ""
-            appendDict["TrackURL"] = st.session_state.trackInfo["trackURL"]
-            appendDict["Rating"] = rate
-            st.session_state.LikedInfo.append(appendDict)
+            appendList = []
+            appendList.append([
+                today,
+                st.session_state.trackInfo["trackName"],
+                st.session_state.trackInfo["albumName"],
+                st.session_state.trackInfo["artistName"],
+                st.session_state.trackInfo["albumImg"],
+                st.session_state.trackInfo["trackID"],
+                "",
+                st.session_state.trackInfo["trackURL"],
+                str(2),
+            ])
+            st.session_state.ws.append_rows(appendList)
+            current_rate = 2
+            rate = st.radio("rate this track", 
+                ["★", "★★", "★★★", "★★★★", "★★★★★"],
+                index=1
+                ) 
+            rate = star_options[rate]
 
-    else:
-        dt_now = dt_now = datetime.datetime.now(tz=pytz.timezone("Asia/Tokyo"))
-        today = str(dt_now.year) + "-" + str(dt_now.month) + "-" + str(dt_now.day)
-        appendList = []
-        appendList.append([
-            today,
-            st.session_state.trackInfo["trackName"],
-            st.session_state.trackInfo["albumName"],
-            st.session_state.trackInfo["artistName"],
-            st.session_state.trackInfo["albumImg"],
-            st.session_state.trackInfo["trackID"],
-            "",
-            st.session_state.trackInfo["trackURL"],
-            str(2),
-        ])
-        st.session_state.ws.append_rows(appendList)
-        current_rate = 2
-        rate = st.radio("rate this track", 
-             ["★", "★★", "★★★", "★★★★", "★★★★★"],
-             index=1
-             ) 
-        rate = star_options[rate]
-
-    
-    if (current_rate != rate):    
-        st.success("rating updated")
-        st.session_state.ws.update_cell(cell.row, 9, rate)
-    
-    if st.session_state.trackInfo["genre"] != []:
-        st.write(f'{", ".join(st.session_state.trackInfo["genre"])}')
-    else:
-        st.write(f'-')
-    
-    track_point = {
-        1: 0,
-        2: 20, 
-        3: 60, 
-        4 : 80, 
-        5 : 100
-    }
-    if st.session_state.trackInfo["albumTracks"] is not None:
-        totalTrackNum = st.session_state.trackInfo["albumTracks"]["total"]
         
-        disp_rate = {
-            0: "☆☆☆☆☆",
-            1 : "★☆☆☆☆", 
-            2 : "★★☆☆☆", 
-            3 : "★★★☆☆", 
-            4 : "★★★★☆",
-            5 : "★★★★★"
+        if (current_rate != rate):    
+            st.success("rating updated")
+            st.session_state.ws.update_cell(cell.row, 9, rate)
+    
+    with st.container(border=True):
+        st.markdown("### Album")
+        track_point = {
+            1: 0,
+            2: 20, 
+            3: 60, 
+            4 : 80, 
+            5 : 100
         }
-        cnt = 1
-        album_rate = 0.0
-        album_table = []
-        for track in st.session_state.trackInfo["albumTracks"]["items"]:
-            trackname = track["name"]
-            trackid = track["id"]
+        if st.session_state.trackInfo["albumTracks"] is not None:
+            totalTrackNum = st.session_state.trackInfo["albumTracks"]["total"]
             
-            current_rate = 0
-            for likedSong in st.session_state.LikedInfo:
-                if trackid == likedSong["TrackID"]:
-                    current_rate = likedSong["Rating"]
-                    album_rate += track_point[current_rate]
-            disp = disp_rate[current_rate]
-            album_table.append([trackname, disp])
-#            st.write(f'{cnt}. {trackname} {disp}')
-            cnt+=1
+            disp_rate = {
+                0: "☆☆☆☆☆",
+                1 : "★☆☆☆☆", 
+                2 : "★★☆☆☆", 
+                3 : "★★★☆☆", 
+                4 : "★★★★☆",
+                5 : "★★★★★"
+            }
+            cnt = 1
+            album_rate = 0.0
+            album_table = []
+            for track in st.session_state.trackInfo["albumTracks"]["items"]:
+                trackname = track["name"]
+                trackid = track["id"]
+                
+                current_rate = 0
+                for likedSong in st.session_state.LikedInfo:
+                    if trackid == likedSong["TrackID"]:
+                        current_rate = likedSong["Rating"]
+                        album_rate += track_point[current_rate]
+                disp = disp_rate[current_rate]
+                album_table.append([trackname, disp])
+    #            st.write(f'{cnt}. {trackname} {disp}')
+                cnt+=1
+            
+            average = album_rate / totalTrackNum
+            
+            dispAlbum = []
+            st.markdown(f'[link]({st.session_state.trackInfo["albumURL"]})')
+            
+            dispAlbum.append(["Name", st.session_state.trackInfo["albumName"]])
+            dispAlbum.append(["Score", average])
+            dispAlbum.append(["Release Date", st.session_state.trackInfo["releaseDate"]])
+            dispAlbum.append(["Genre", ", ".join(st.session_state.trackInfo["genre"])])
+            dataframe = pd.DataFrame(dispAlbum)
+            st.table(dataframe)
+            
+            df = pd.DataFrame(album_table, columns=["Track Name", "Rate"])
+            df.index = df.index + 1
+            st.table(df)
+            st.write(f'total point {album_rate}')
         
-        average = album_rate / totalTrackNum
-        st.markdown(f'Rate {average}')
+    with st.container(border=True):
+        st.markdown("#### Artist")
+        artist = st.session_state.artistInfo
+        dispArtist = []
+        dispArtist.append(
+            ["name", artist["name"]]
+        )
+        dispArtist.append(
+            ["popularity", artist["popularity"]]
+        )
+        dispArtist.append(
+            ["followers", artist["followers"]["total"]]
+        )            
+        st.image(artist["images"][0]["url"], width=100)
+        st.markdown(f'[link]({artist["external_urls"]["spotify"]})')
         
-        df = pd.DataFrame(album_table, columns=["Track Name", "Rate"])
-        df.index = df.index + 1
-        st.table(df)
-        st.write(f'total point {album_rate}')
-        
+        dataframe = pd.DataFrame(dispArtist)
+        st.table(dataframe)
 else:
     st.text(f'Track is not playing')
     
