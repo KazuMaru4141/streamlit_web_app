@@ -203,7 +203,7 @@ if currentTrack != None:
     
     with st.container(border=True):
         st.markdown("### Track")
-        st.image(st.session_state.trackInfo["albumImg"], width=70)    
+        # st.image(st.session_state.trackInfo["albumImg"], width=70)    
     #    st.button('♥️', on_click=onclickLiked)
         st.button('✅', on_click=onclickSaved)
         st.write(f'__{st.session_state.trackInfo["trackName"]}__ by __{st.session_state.trackInfo["artistName"]}__ ({st.session_state.trackInfo["releaseDate"]})')
