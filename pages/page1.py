@@ -231,9 +231,12 @@ if currentTrack != None:
             
             rate = st.radio("Rate", 
                 ["★", "★★", "★★★", "★★★★", "★★★★★"],
-                index=(current_rate-1)
+                index=(current_rate-1),
+                key=f"rating_{st.session_state.trackInfo['trackID']}"
                 )
             rate = star_options[rate]
+
+            print(f'current_rate: {current_rate}, rate: {rate}')
             
             flg = False
             for likedSong in st.session_state.LikedInfo:
@@ -275,19 +278,21 @@ if currentTrack != None:
 
             cell = st.session_state.ws.find(st.session_state.trackInfo["trackID"])
             row = int(cell.row)
-            
+
             current_rate = 0
             rate = st.radio("rate this track", 
                 ["★", "★★", "★★★", "★★★★", "★★★★★"],
-                index=1
+                index=1,
+                key=f"rating_{st.session_state.trackInfo['trackID']}"
                 ) 
             rate = star_options[rate]
-            print(rate, current_rate)
+
+            print(f'current_rate: {current_rate}, rate: {rate}')
         
         if (current_rate != rate):    
             st.success("rating updated")
             st.session_state.ws.update_cell(cell.row, 9, rate)
-    
+        
     with st.container(border=True):
         st.markdown("### Album")
         track_point = {
@@ -365,5 +370,5 @@ if currentTrack != None:
 else:
     st.text(f'Track is not playing')
     
-# update every 5sec
+# update every 15sec
 st_autorefresh(interval=15000, key="dataframerefresh")
