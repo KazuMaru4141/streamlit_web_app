@@ -66,7 +66,7 @@ def initSessionState(st):
         st.session_state.wb = None
     
     if 'LikedInfo' not in st.session_state:
-        st.session_state.LikedInfo = {}
+        st.session_state.LikedInfo = []
     
 def updateSessionState(st):
     if st.session_state.trackInfo["trackName"] != currentTrack["item"]["name"]:        
@@ -84,14 +84,16 @@ def updateSessionState(st):
             st.session_state.trackInfo["albumTracks"] = spotify.album_tracks(currentTrack["item"]["album"]["id"])
         st.session_state.trackInfo["albumURL"] = currentTrack["item"]["album"]["external_urls"]["spotify"]
         st.session_state.trackInfo["releaseDate"] = currentTrack["item"]["album"]["release_date"]
-        st.session_state.trackInfo["albumImg"] = currentTrack["item"]["album"]["images"][0]["url"]
+        album_images = currentTrack["item"]["album"].get("images", [])
+        st.session_state.trackInfo["albumImg"] = album_images[0]["url"] if album_images else ""
         st.session_state.trackInfo["type"] = currentTrack["item"]["album"]["type"]
         st.session_state.trackInfo["total_tracks"] = currentTrack["item"]["album"]["total_tracks"]
         artistInfo = spotify.artist(st.session_state.trackInfo["artistID"])
         st.session_state.artistInfo = artistInfo
-        st.session_state.trackInfo["genre"] = artistInfo["genres"]
-#        print(st.session_state.artistInfo)
-        st.session_state.trackInfo["artistImg"] = artistInfo["images"][0]["url"]
+        st.session_state.trackInfo["genre"] = artistInfo.get("genres", [])
+        #        print(st.session_state.artistInfo)
+        artist_images = artistInfo.get("images", [])
+        st.session_state.trackInfo["artistImg"] = artist_images[0]["url"] if artist_images else ""
         st.session_state.trackInfo["artistPopularity"] = artistInfo["popularity"]
         
         try:
@@ -349,7 +351,9 @@ if currentTrack != None:
         dispArtist.append(
             ["followers", artist["followers"]["total"]]
         )            
-        st.image(artist["images"][0]["url"], width=100)
+        artist_images = artist.get("images", [])
+        if artist_images:
+            st.image(artist_images[0]["url"], width=100)
         st.markdown(f'[link]({artist["external_urls"]["spotify"]})')
         
         dataframe = pd.DataFrame(dispArtist)
