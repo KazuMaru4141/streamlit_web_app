@@ -142,7 +142,7 @@ def onclickLiked():
         sp.addLikedTrackToPlaylist(spotify, st.session_state.trackInfo["trackURI"])
         st.write(f'Successfully Added')
     else:
-        cell = ws.find(st.session_state.trackInfo["trackName"])
+        cell = ws.find(st.session_state.trackInfo["trackID"])
         row = int(cell.row)
         if (ws.cell(row, 9).value == None):
             ws.update_cell(cell.row, 9, "1")
@@ -205,7 +205,7 @@ if currentTrack != None:
     
     with st.container(border=True):
         st.markdown("### Track")
-        # st.image(st.session_state.trackInfo["albumImg"], width=70)    
+        st.image(st.session_state.trackInfo["albumImg"], width=70)    
     #    st.button('♥️', on_click=onclickLiked)
         st.button('✅', on_click=onclickSaved)
         st.write(f'__{st.session_state.trackInfo["trackName"]}__ by __{st.session_state.trackInfo["artistName"]}__ ({st.session_state.trackInfo["releaseDate"]})')
@@ -272,13 +272,13 @@ if currentTrack != None:
                 str(2),
             ])
             st.session_state.ws.append_rows(appendList)
-            current_rate = 2
+            current_rate = 0
             rate = st.radio("rate this track", 
                 ["★", "★★", "★★★", "★★★★", "★★★★★"],
                 index=1
                 ) 
             rate = star_options[rate]
-
+            print(rate, current_rate)
         
         if (current_rate != rate):    
             st.success("rating updated")
@@ -326,9 +326,9 @@ if currentTrack != None:
             dispAlbum = []
             st.markdown(f'[link]({st.session_state.trackInfo["albumURL"]})')
             
-            dispAlbum.append(["Name", st.session_state.trackInfo["albumName"]])
-            dispAlbum.append(["Score", average])
-            dispAlbum.append(["Release Date", st.session_state.trackInfo["releaseDate"]])
+            dispAlbum.append(["Name", str(st.session_state.trackInfo["albumName"])])
+            dispAlbum.append(["Score", str(average)])
+            dispAlbum.append(["Release Date", str(st.session_state.trackInfo["releaseDate"])])
             dispAlbum.append(["Genre", ", ".join(st.session_state.trackInfo["genre"])])
             dataframe = pd.DataFrame(dispAlbum)
             st.table(dataframe)
@@ -343,13 +343,13 @@ if currentTrack != None:
         artist = st.session_state.artistInfo
         dispArtist = []
         dispArtist.append(
-            ["name", artist["name"]]
+            ["name", str(artist["name"])]
         )
         dispArtist.append(
-            ["popularity", artist["popularity"]]
+            ["popularity", str(artist["popularity"])]
         )
         dispArtist.append(
-            ["followers", artist["followers"]["total"]]
+            ["followers", str(artist["followers"]["total"])]
         )            
         artist_images = artist.get("images", [])
         if artist_images:
