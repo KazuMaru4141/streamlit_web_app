@@ -272,6 +272,10 @@ if currentTrack != None:
                 str(2),
             ])
             st.session_state.ws.append_rows(appendList)
+
+            cell = st.session_state.ws.find(st.session_state.trackInfo["trackID"])
+            row = int(cell.row)
+            
             current_rate = 0
             rate = st.radio("rate this track", 
                 ["★", "★★", "★★★", "★★★★", "★★★★★"],
