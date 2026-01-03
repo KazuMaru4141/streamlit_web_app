@@ -4,6 +4,8 @@ from pylastCtrl import pylastCtrl
 from SpreadSheetAPI import GspreadCtrl
 import threading
 import logging
+import time
+from streamlit_autorefresh import st_autorefresh
 
 class OverviewController:
     def __init__(self):
@@ -14,8 +16,38 @@ class OverviewController:
         # スプレッドシートから LikedInfo を取得
         gc = GspreadCtrl
         self.wsLiked, self.wbLiked, self.LikedInfo = gc.connect_gspread(st.secrets.SP_SHEET_KEY.Key_LikedSongs)
+        
+        # ポーリング用の現在の曲情報を保存
+        if "current_track_id" not in st.session_state:
+            st.session_state.current_track_id = None
+        if "previous_track_id" not in st.session_state:
+            st.session_state.previous_track_id = None
+    
+    def check_track_changed(self):
+        """
+        再生中の曲が変わったかどうかを確認
+        
+        Returns:
+            bool: 曲が変わった場合True、変わらない場合False
+        """
+        try:
+            current_playback = self.spotify.current_playback()
+            if current_playback and current_playback.get("item"):
+                new_track_id = current_playback["item"]["id"]
+                st.session_state.current_track_id = new_track_id
+                
+                if st.session_state.previous_track_id != new_track_id:
+                    st.session_state.previous_track_id = new_track_id
+                    return True
+            return False
+        except Exception as e:
+            logging.error(f"Error checking track change: {str(e)}")
+            return False
     
     def overviewCtrl(self):
+        # ポーリング設定：15秒ごとにリロード
+        count = st_autorefresh(interval=15000, limit=None, key="overview_polling")
+        
         # リフレッシュボタン
         # col1, col2, col3, col4 = st.columns([1, 1, 1, 1])
         # with col1:
@@ -40,9 +72,15 @@ class OverviewController:
         }
         
         # 現在再生中の曲を表示
+        track_changed = self.check_track_changed()
         current_playback = self.spotify.current_playback()
         if current_playback and current_playback.get("item"):
             track = current_playback["item"]
+            
+            # 曲が変わった場合、通知を表示
+            if track_changed:
+                st.toast(f"🎵 Now Playing: {track['name']}", icon="✨")
+            
             # st.markdown("### 🎵 Now Playing")
             with st.container(border=True):
                 col1, col2, col3 = st.columns([1, 4, 5], vertical_alignment="center")
@@ -141,7 +179,7 @@ class OverviewController:
             # スレッドでアルバムトラック取得
             thread = threading.Thread(target=fetch_album_tracks, daemon=True)
             thread.start()
-            thread.join(timeout=5)  # 5秒でタイムアウト
+            thread.join(timeout=3)  # 3秒でタイムアウト
             
             if album_tracks_result["completed"] and album_tracks_result["data"]:
                 for album_track in album_tracks_result["data"]["items"]:
@@ -203,21 +241,21 @@ class OverviewController:
                 play_count_today = pylastCtrl.getPlayCountToday(self.user)
                 st.metric("Today", play_count_today)
             
-            with col2:
-                play_count_month = pylastCtrl.getPlayCountThisMonth(self.user)
-                st.metric("This Month", play_count_month)
+            # with col2:
+            #     play_count_month = pylastCtrl.getPlayCountThisMonth(self.user)
+            #     st.metric("This Month", play_count_month)
             
-            with col3:
-                avg_play_count_month = pylastCtrl.getAveragePlayCountThisMonth(self.user)
-                st.metric("This Month Avg", avg_play_count_month)
+            # with col3:
+            #     avg_play_count_month = pylastCtrl.getAveragePlayCountThisMonth(self.user)
+            #     st.metric("This Month Avg", avg_play_count_month)
             
-            with col4:
-                play_count_year = pylastCtrl.getPlayCountThisYear(self.user)
-                st.metric("This Year", play_count_year)
+            # with col4:
+            #     play_count_year = pylastCtrl.getPlayCountThisYear(self.user)
+            #     st.metric("This Year", play_count_year)
             
-            with col5:
-                play_count_overall = pylastCtrl.getOverallPlayCount(self.user)
-                st.metric("All Time", play_count_overall)
+            # with col5:
+            #     play_count_overall = pylastCtrl.getOverallPlayCount(self.user)
+            #     st.metric("All Time", play_count_overall)
             
             # 月ごとの再生回数をグラフで表示
             # st.markdown("### 📈 Monthly Play Count")
