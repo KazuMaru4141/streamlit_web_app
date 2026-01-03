@@ -197,7 +197,7 @@ class OverviewController:
         
         with tab2:
             st.markdown("### 📊 Play Count Statistics")
-            col1, col2, col3, col4 = st.columns(4)
+            col1, col2, col3, col4, col5 = st.columns(5)
             
             with col1:
                 play_count_today = pylastCtrl.getPlayCountToday(self.user)
@@ -208,11 +208,13 @@ class OverviewController:
                 st.metric("This Month", play_count_month)
             
             with col3:
+                avg_play_count_month = pylastCtrl.getAveragePlayCountThisMonth(self.user)
+                st.metric("This Month Avg", avg_play_count_month)
+            
+            with col4:
                 play_count_year = pylastCtrl.getPlayCountThisYear(self.user)
                 st.metric("This Year", play_count_year)
             
-            with col4:
+            with col5:
                 play_count_overall = pylastCtrl.getOverallPlayCount(self.user)
                 st.metric("All Time", play_count_overall)
-                with col4:
-                    pass

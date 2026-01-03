@@ -63,6 +63,23 @@ class pylastCtrl:
 
         return len(play_count)
     
+    def getAveragePlayCountThisMonth(user):
+        current_time = datetime.datetime.now(tz=pytz.timezone("Asia/Tokyo"))
+        start_time = datetime.datetime(current_time.year, current_time.month, 1, 0, 0, 0, 0, tzinfo=pytz.timezone("Asia/Tokyo"))
+        
+        current_unix_time = int(current_time.timestamp())
+        start_unix_time = int(start_time.timestamp())
+        play_count = user.get_recent_tracks(limit=None,time_from=start_unix_time, time_to=current_unix_time)
+        
+        # 月の1日から今日までの日数を計算
+        days_elapsed = current_time.day
+        
+        if days_elapsed == 0:
+            return 0
+        
+        average = len(play_count) / days_elapsed
+        return round(average, 1)
+    
     def getPlayCountThisYear(user):
         current_time = datetime.datetime.now(tz=pytz.timezone("Asia/Tokyo"))
         start_time = datetime.datetime(current_time.year, 1, 1, 0, 0, 0, 0, tzinfo=pytz.timezone("Asia/Tokyo"))
