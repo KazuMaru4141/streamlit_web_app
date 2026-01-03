@@ -59,7 +59,7 @@ class pylastCtrl:
         
         current_unix_time = int(current_time.timestamp())
         start_unix_time = int(start_time.timestamp())
-        play_count = user.get_recent_tracks(limit=400,time_from=start_unix_time, time_to=current_unix_time)
+        play_count = user.get_recent_tracks(limit=None,time_from=start_unix_time, time_to=current_unix_time)
 
         return len(play_count)
     
@@ -69,7 +69,7 @@ class pylastCtrl:
         
         current_unix_time = int(current_time.timestamp())
         start_unix_time = int(start_time.timestamp())
-        play_count = user.get_recent_tracks(limit=400,time_from=start_unix_time, time_to=current_unix_time)
+        play_count = user.get_recent_tracks(limit=None,time_from=start_unix_time, time_to=current_unix_time)
 
         return len(play_count)
 
@@ -79,13 +79,13 @@ class pylastCtrl:
         return total_scrobbles
     
     def getOverallArtist(user):
-        artists = user.get_top_artists(period=pylast.PERIOD_OVERALL)
+        artists = user.get_top_artists(period=pylast.PERIOD_OVERALL, limit=None)
         total_artists = len(artists)
         
         return total_artists
 
     def getOverallAlbum(user):
-        albums = user.get_top_albums(period=pylast.PERIOD_OVERALL)
+        albums = user.get_top_albums(period=pylast.PERIOD_OVERALL, limit=None)
         total_albums = len(albums)
         
         return total_albums
