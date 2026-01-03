@@ -218,3 +218,8 @@ class OverviewController:
             with col5:
                 play_count_overall = pylastCtrl.getOverallPlayCount(self.user)
                 st.metric("All Time", play_count_overall)
+            
+            # 月ごとの再生回数をグラフで表示
+            # st.markdown("### 📈 Monthly Play Count")
+            # monthly_counts = pylastCtrl.getMonthlyPlayCounts(self.user)
+            # st.bar_chart(monthly_counts)
