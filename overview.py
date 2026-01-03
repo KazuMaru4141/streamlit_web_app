@@ -2,6 +2,8 @@ import streamlit as st
 from SpotifyAPI import SpotifyCtrl
 from pylastCtrl import pylastCtrl
 from SpreadSheetAPI import GspreadCtrl
+import threading
+import logging
 
 class OverviewController:
     def __init__(self):
@@ -15,12 +17,12 @@ class OverviewController:
     
     def overviewCtrl(self):
         # リフレッシュボタン
-        col1, col2, col3, col4 = st.columns([1, 1, 1, 1])
-        with col1:
-            if st.button("🔄 Refresh", use_container_width=True):
-                st.rerun()
+        # col1, col2, col3, col4 = st.columns([1, 1, 1, 1])
+        # with col1:
+        #     if st.button("🔄 Refresh", use_container_width=True):
+        #         st.rerun()
         
-        st.divider()
+        # st.divider()
         
         # rating 表示用の辞書
         disp_rate = {
@@ -41,9 +43,9 @@ class OverviewController:
         current_playback = self.spotify.current_playback()
         if current_playback and current_playback.get("item"):
             track = current_playback["item"]
-            st.markdown("### 🎵 Now Playing")
+            # st.markdown("### 🎵 Now Playing")
             with st.container(border=True):
-                col1, col2, col3, col4 = st.columns([1, 4, 2, 5], vertical_alignment="center")
+                col1, col2, col3 = st.columns([1, 4, 5], vertical_alignment="center")
                 with col1:
                     st.image({track["album"]["images"][0]["url"]}, width=50)
                 
@@ -82,10 +84,6 @@ class OverviewController:
                         self.wsLiked.append_rows(appendList)
                         rating = 2
                     
-                    rating_str = disp_rate.get(rating, "☆☆☆☆☆")
-                    st.markdown(f'**{rating_str}**')
-                
-                with col4:
                     # rating 更新用の操作
                     star_options = {
                         "★": 1,
@@ -118,6 +116,47 @@ class OverviewController:
                                     break
                             st.success("Rating updated!")
                             st.rerun()
+            
+            # アルバム内の全曲を表示（タイムアウト5秒）
+            st.markdown(f"### 💿 {track['album']['name']}")
+            album_id = track["album"]["id"]
+            
+            album_tracks_result = {"data": None, "completed": False, "rate_limited": False}
+            
+            def fetch_album_tracks():
+                try:
+                    album_tracks_result["data"] = self.spotify.album_tracks(album_id)
+                    album_tracks_result["completed"] = True
+                except Exception as e:
+                    error_msg = str(e).lower()
+                    # レート制限エラーをチェック
+                    if "rate" in error_msg or "limit" in error_msg or "429" in error_msg:
+                        album_tracks_result["rate_limited"] = True
+                    album_tracks_result["completed"] = False
+            
+            # スレッドでアルバムトラック取得
+            thread = threading.Thread(target=fetch_album_tracks, daemon=True)
+            thread.start()
+            thread.join(timeout=5)  # 5秒でタイムアウト
+            
+            if album_tracks_result["completed"] and album_tracks_result["data"]:
+                for album_track in album_tracks_result["data"]["items"]:
+                    album_track_id = album_track["id"]
+                    album_track_name = album_track["name"]
+                    
+                    # rating を取得
+                    album_rating = 0
+                    for liked_song in self.LikedInfo:
+                        if liked_song.get("TrackID") == album_track_id:
+                            album_rating = liked_song.get("Rating", 0)
+                            break
+                    
+                    rating_str = disp_rate.get(album_rating, "☆☆☆☆☆")
+                    st.write(f"{album_track_name} {rating_str}")
+            elif album_tracks_result["rate_limited"]:
+                st.warning("API rate limit reached - skipping album tracks")
+            else:
+                st.info("Album tracks loading timed out - please try again later")
                             
             st.divider()
         
@@ -125,7 +164,7 @@ class OverviewController:
         tab1, tab2 = st.tabs(["Recently Played", "Statistics"])
         
         with tab1:
-            st.markdown("### 📜 Recently Played")
+            # st.markdown("### 📜 Recently Played")
             recentTracks = self.sp.getRecentPlayedTracs(self.spotify)
             
 #        st.write(f'total{recentTracks["items"]}')
