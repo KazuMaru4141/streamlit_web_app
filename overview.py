@@ -79,7 +79,8 @@ class OverviewController:
                             track_id,
                             "",
                             track["external_urls"]["spotify"],
-                            2
+                            2,
+                            track["album"]["id"]
                         ]]
                         self.wsLiked.append_rows(appendList)
                         rating = 2
@@ -102,12 +103,15 @@ class OverviewController:
                     
                     new_rating = star_options[selected_rate]
                     
-                    # rating が変更された場合、スプレッドシートを更新
-                    if rating != new_rating:
-                        # スプレッドシートで track を探す
-                        trackIdList = self.wsLiked.col_values(6)
-                        if track_id in trackIdList:
-                            cell = self.wsLiked.find(track_id)
+                    # スプレッドシートで track を探す
+                    trackIdList = self.wsLiked.col_values(6)
+                    if track_id in trackIdList:
+                        cell = self.wsLiked.find(track_id)
+                        # AlbumId は常に更新
+                        self.wsLiked.update_cell(cell.row, 10, track["album"]["id"])
+                        
+                        # rating が変更された場合、rating も更新
+                        if rating != new_rating:
                             self.wsLiked.update_cell(cell.row, 9, new_rating)
                             # LikedInfo も更新
                             for liked_song in self.LikedInfo:
