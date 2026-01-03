@@ -24,6 +24,16 @@ pc = pylastCtrl
 lastfm_network = pc.getNetwork()
 lastfm_user = pc.getUser(lastfm_network)
 
+def getCurrentDateTime():
+    """
+    現在の日時を取得
+    
+    Returns:
+        str: "YYYY-MM-DD HH:MM:SS" 形式の日時文字列
+    """
+    dt_now = datetime.datetime.now(tz=pytz.timezone("Asia/Tokyo"))
+    return f"{dt_now.year}-{dt_now.month}-{dt_now.day} {dt_now.hour:02d}:{dt_now.minute:02d}:{dt_now.second:02d}"
+
 def initSessionState(st):
     """
     Streamlitセッション状態を初期化
@@ -151,8 +161,7 @@ def onclickLiked():
     trackIdList = ws.col_values(6)
     
     if st.session_state.trackInfo["trackID"] not in trackIdList: 
-        dt_now = dt_now = datetime.datetime.now(tz=pytz.timezone("Asia/Tokyo"))
-        today = str(dt_now.year) + "-" + str(dt_now.month) + "-" + str(dt_now.day)
+        today = getCurrentDateTime()
         appendList = []
         appendList.append([
             today,
@@ -192,8 +201,7 @@ def onclickSaved():
     gs = GspreadCtrl
     SP_SHEET_KEY = st.secrets.SP_SHEET_KEY.key_SpotifySavedAlbums
     ws, wb, SpreadInfo = gs.connect_gspread(SP_SHEET_KEY)
-    dt_now = dt_now = datetime.datetime.now(tz=pytz.timezone("Asia/Tokyo"))
-    today = str(dt_now.year) + "-" + str(dt_now.month) + "-" + str(dt_now.day)
+    today = getCurrentDateTime()
     appendList = []
     appendList.append([
         today,
@@ -262,44 +270,20 @@ def display_track_info(st):
             "★★★★★" : 5
         }
         trackIdList = st.session_state.ws.col_values(6)
+        
+        # トラックIDがスプレッドシートに存在するか確認
         if st.session_state.trackInfo["trackID"] in trackIdList:
             cell = st.session_state.ws.find(st.session_state.trackInfo["trackID"])
             row = int(cell.row)
+            
+            # A列に再生日付を更新
+            today = getCurrentDateTime()
+            st.session_state.ws.update_cell(row, 1, today)
+            
             current_rate = int(st.session_state.ws.cell(row, 9).value)
-            
-            rate = st.radio("Rate", 
-                ["★", "★★", "★★★", "★★★★", "★★★★★"],
-                index=(current_rate-1),
-                key=f"rating_{st.session_state.trackInfo['trackID']}"
-                )
-            rate = star_options[rate]
-
-            print(f'current_rate: {current_rate}, rate: {rate}')
-            
-            flg = False
-            for likedSong in st.session_state.LikedInfo:
-                if st.session_state.trackInfo["trackID"] == likedSong["TrackID"]:
-                    likedSong["Rating"] = rate
-                    flg = True
-            
-            if flg == False:
-                dt_now = dt_now = datetime.datetime.now(tz=pytz.timezone("Asia/Tokyo"))
-                today = str(dt_now.year) + "-" + str(dt_now.month) + "-" + str(dt_now.day)
-                appendDict = {}
-                appendDict["SavedAt"] = today
-                appendDict["trackName"] = st.session_state.trackInfo["trackName"]
-                appendDict["AlbumName"] = st.session_state.trackInfo["albumName"]
-                appendDict["ArtistName"] = st.session_state.trackInfo["artistName"]
-                appendDict["AlbumImage"] = st.session_state.trackInfo["albumImg"]
-                appendDict["TrackID"] = st.session_state.trackInfo["trackID"]
-                appendDict["TrackSrc"] = ""
-                appendDict["TrackURL"] = st.session_state.trackInfo["trackURL"]
-                appendDict["Rating"] = rate
-                st.session_state.LikedInfo.append(appendDict)
-
         else:
-            dt_now = dt_now = datetime.datetime.now(tz=pytz.timezone("Asia/Tokyo"))
-            today = str(dt_now.year) + "-" + str(dt_now.month) + "-" + str(dt_now.day)
+            # 新規トラックの場合、スプレッドシートに追加
+            today = getCurrentDateTime()
             appendList = []
             appendList.append([
                 today,
@@ -311,25 +295,53 @@ def display_track_info(st):
                 "",
                 st.session_state.trackInfo["trackURL"],
                 str(2),
+                st.session_state.trackInfo["albumID"],
             ])
             st.session_state.ws.append_rows(appendList)
-
+            
             cell = st.session_state.ws.find(st.session_state.trackInfo["trackID"])
             row = int(cell.row)
-
             current_rate = 0
-            rate = st.radio("rate this track", 
-                ["★", "★★", "★★★", "★★★★", "★★★★★"],
-                index=1,
-                key=f"rating_{st.session_state.trackInfo['trackID']}"
-                ) 
-            rate = star_options[rate]
-
-            print(f'current_rate: {current_rate}, rate: {rate}')
         
+        # 評価の表示と取得（共通処理）
+        rate = st.radio("Rate", 
+            ["★", "★★", "★★★", "★★★★", "★★★★★"],
+            index=(current_rate-1),
+            key=f"rating_{st.session_state.trackInfo['trackID']}"
+        )
+        rate = star_options[rate]
+        
+        print(f'current_rate: {current_rate}, rate: {rate}')
+        
+        # LikedInfo内の評価を更新
+        flg = False
+        for likedSong in st.session_state.LikedInfo:
+            if st.session_state.trackInfo["trackID"] == likedSong["TrackID"]:
+                likedSong["Rating"] = rate
+                flg = True
+                break
+        
+        # LikedInfoに存在しない場合は追加
+        if not flg:
+            today = getCurrentDateTime()
+            appendDict = {
+                "SavedAt": today,
+                "trackName": st.session_state.trackInfo["trackName"],
+                "AlbumName": st.session_state.trackInfo["albumName"],
+                "ArtistName": st.session_state.trackInfo["artistName"],
+                "AlbumImage": st.session_state.trackInfo["albumImg"],
+                "TrackID": st.session_state.trackInfo["trackID"],
+                "TrackSrc": "",
+                "TrackURL": st.session_state.trackInfo["trackURL"],
+                "Rating": rate,
+                "AlbumId": st.session_state.trackInfo["albumID"]
+            }
+            st.session_state.LikedInfo.append(appendDict)
+        
+        # 評価が変更された場合、スプレッドシートを更新
         if (current_rate != rate):    
             st.success("rating updated")
-            st.session_state.ws.update_cell(cell.row, 9, rate)
+            st.session_state.ws.update_cell(row, 9, rate)
 
 def display_album_info(st):
     """
