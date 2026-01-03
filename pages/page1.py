@@ -25,6 +25,15 @@ lastfm_network = pc.getNetwork()
 lastfm_user = pc.getUser(lastfm_network)
 
 def initSessionState(st):
+    """
+    Streamlitセッション状態を初期化
+    
+    曲情報、再生カウント、Googleスプレッドシート接続情報などの
+    セッション変数を初期化
+    
+    Args:
+        st: Streamlitモジュール
+    """
     if 'trackInfo' not in st.session_state:
         st.session_state.trackInfo = {}
         st.session_state.trackInfo["trackName"] = ""
@@ -69,6 +78,15 @@ def initSessionState(st):
         st.session_state.LikedInfo = []
     
 def updateSessionState(st):
+    """
+    セッション状態を現在再生中の曲情報で更新
+    
+    Spotifyから現在再生中の曲情報を取得し、セッション状態に保存
+    Last.fmから再生回数などの統計情報も取得
+    
+    Args:
+        st: Streamlitモジュール
+    """
     if st.session_state.trackInfo["trackName"] != currentTrack["item"]["name"]:        
         st.session_state.trackInfo["trackName"] = currentTrack["item"]["name"]
         st.session_state.trackInfo["trackID"] = currentTrack["item"]["id"]
@@ -118,6 +136,15 @@ def updateSessionState(st):
             st.session_state.playCount["OverallPlayCount"] = 0
 
 def onclickLiked():
+    """
+    現在再生中の曲をお気に入り曲として保存
+    
+    Googleスプレッドシート「LikedSongs」に曲情報を追加または更新
+    スポティファイのお気に入りプレイリストにも追加
+    
+    初回追加時：新規行として追加
+    既に存在する場合：再生回数をインクリメント
+    """
     gs = GspreadCtrl
     SP_SHEET_KEY = st.secrets.SP_SHEET_KEY.Key_LikedSongs
     ws, wb, LikedInfo = gs.connect_gspread(SP_SHEET_KEY)
@@ -152,7 +179,16 @@ def onclickLiked():
             ws.update_cell(cell.row, 9, impression)
         st.write(f'Already Added')
 
-def onclickSaved():        
+def onclickSaved():
+    """
+    現在再生中のアルバムを保存済みアルバムとして記録
+    
+    Googleスプレッドシート「SavedAlbums」にアルバム情報を追加
+    アルバム画像、アーティスト情報、リリース日などを記録
+    
+    Args:
+        なし
+    """        
     gs = GspreadCtrl
     SP_SHEET_KEY = st.secrets.SP_SHEET_KEY.key_SpotifySavedAlbums
     ws, wb, SpreadInfo = gs.connect_gspread(SP_SHEET_KEY)
@@ -186,36 +222,38 @@ def onclickSaved():
     st.write(f'Successfully Saved!')
 
 def readSpreadSheet(st):
+    """
+    Googleスプレッドシートを読み込んでセッション状態に保存
+    
+    LikedSongsシートから曲情報を読み込み
+    初回読み込み時のみ実行（キャッシング）
+    
+    Args:
+        st: Streamlitモジュール
+    """
     if st.session_state.gs == None:
         with st.spinner("Loading..."):
             st.session_state.gs = GspreadCtrl
             st.session_state.ws, st.session_state.wb, st.session_state.LikedInfo = st.session_state.gs.connect_gspread(st.secrets.SP_SHEET_KEY.Key_LikedSongs)
 
-############### Main #######################################
-#st.write(f'#### Now Playing')
-initSessionState(st)
-readSpreadSheet(st)
-
-currentTrack = spotify.current_user_playing_track()
-
-if currentTrack != None:
-    updateSessionState(st)
+def display_track_info(st):
+    """
+    トラック情報と評価を表示・更新
     
+    現在再生中の曲の情報を表示し、ユーザーが評価（星）を付けられる
+    初回の場合は新規追加、既存の場合は評価を更新
     
-    
+    Args:
+        st: Streamlitモジュール
+    """
     with st.container(border=True):
         st.markdown("### Track")
-        st.image(st.session_state.trackInfo["albumImg"], width=70)    
+        st.image(st.session_state.trackInfo["albumImg"], width=70) 
     #    st.button('♥️', on_click=onclickLiked)
         st.button('✅', on_click=onclickSaved)
         st.write(f'__{st.session_state.trackInfo["trackName"]}__ by __{st.session_state.trackInfo["artistName"]}__ ({st.session_state.trackInfo["releaseDate"]})')
         st.markdown(f'🎤 {st.session_state.playCount["artistPlayCount"]} &nbsp; &nbsp; 💿 {st.session_state.playCount["albumPlayCount"]}  &nbsp; &nbsp; 🎵 {st.session_state.playCount["track_play_count"]}  \n ⏭️ {st.session_state.playCount["playCountToday"]} &nbsp; &nbsp; &nbsp; ▶️ {st.session_state.playCount["OverallPlayCount"]}')    
-        # if st.session_state.trackInfo["genre"] != []:
-        #     st.write(f'{", ".join(st.session_state.trackInfo["genre"])}')
-        # else:
-        #     st.write(f'-')
-    
-    
+            
         star_options = {
             "★": 1,
             "★★" : 2, 
@@ -292,12 +330,22 @@ if currentTrack != None:
         if (current_rate != rate):    
             st.success("rating updated")
             st.session_state.ws.update_cell(cell.row, 9, rate)
-        
+
+def display_album_info(st):
+    """
+    アルバム情報を表示
+    
+    アルバムの詳細情報（名前、スコア、リリース日、ジャンル）と
+    各トラックの評価一覧を表示
+    
+    Args:
+        st: Streamlitモジュール
+    """
     with st.container(border=True):
         st.markdown("### Album")
         track_point = {
             1: 0,
-            2: 20, 
+            2: 10, 
             3: 60, 
             4 : 80, 
             5 : 100
@@ -346,7 +394,16 @@ if currentTrack != None:
             df.index = df.index + 1
             st.table(df)
             st.write(f'total point {album_rate}')
-        
+
+def display_artist_info(st):
+    """
+    アーティスト情報を表示
+    
+    アーティストの名前、人気度、フォロワー数、画像、Spotifyリンクを表示
+    
+    Args:
+        st: Streamlitモジュール
+    """
     with st.container(border=True):
         st.markdown("#### Artist")
         artist = st.session_state.artistInfo
@@ -367,6 +424,21 @@ if currentTrack != None:
         
         dataframe = pd.DataFrame(dispArtist)
         st.table(dataframe)
+
+############### Main #######################################
+#st.write(f'#### Now Playing')
+initSessionState(st)
+readSpreadSheet(st)
+
+currentTrack = spotify.current_user_playing_track()
+
+if currentTrack != None:
+    updateSessionState(st)
+    
+    # 各セクションを関数で表示
+    display_track_info(st)
+    display_album_info(st)
+    display_artist_info(st)
 else:
     st.text(f'Track is not playing')
     
