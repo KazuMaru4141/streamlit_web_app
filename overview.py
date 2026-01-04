@@ -182,6 +182,19 @@ class OverviewController:
             thread.join(timeout=3)  # 3秒でタイムアウト
             
             if album_tracks_result["completed"] and album_tracks_result["data"]:
+                # トラックポイントの定義
+                track_point = {
+                    0: 0,
+                    1: 0,
+                    2: 10, 
+                    3: 60, 
+                    4: 80, 
+                    5: 100
+                }
+                
+                total_track_num = album_tracks_result["data"]["total"]
+                album_rate = 0.0
+                
                 for album_track in album_tracks_result["data"]["items"]:
                     album_track_id = album_track["id"]
                     album_track_name = album_track["name"]
@@ -193,8 +206,16 @@ class OverviewController:
                             album_rating = liked_song.get("Rating", 0)
                             break
                     
+                    # ポイントを加算
+                    album_rate += track_point.get(album_rating, 0)
+                    
                     rating_str = disp_rate.get(album_rating, "☆☆☆☆☆")
                     st.write(f"{album_track_name} {rating_str}")
+                
+                # アルバムの平均スコアを計算して表示
+                average_score = album_rate / total_track_num if total_track_num > 0 else 0
+                st.markdown(f"**Total Score: {album_rate:.0f} / Average: {average_score:.1f}**")
+                
             elif album_tracks_result["rate_limited"]:
                 st.warning("API rate limit reached - skipping album tracks")
             else:
