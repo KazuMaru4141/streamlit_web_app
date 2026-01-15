@@ -47,15 +47,7 @@ class OverviewController:
     def overviewCtrl(self):
         # ポーリング設定：15秒ごとにリロード
         count = st_autorefresh(interval=15000, limit=None, key="overview_polling")
-        
-        # リフレッシュボタン
-        # col1, col2, col3, col4 = st.columns([1, 1, 1, 1])
-        # with col1:
-        #     if st.button("🔄 Refresh", use_container_width=True):
-        #         st.rerun()
-        
-        # st.divider()
-        
+                
         # rating 表示用の辞書
         disp_rate = {
             0: "☆☆☆☆☆",
@@ -78,8 +70,8 @@ class OverviewController:
             track = current_playback["item"]
             
             # 曲が変わった場合、通知を表示
-            if track_changed:
-                st.toast(f"🎵 Now Playing: {track['name']}", icon="✨")
+            # if track_changed:
+            #     st.toast(f"🎵 Now Playing: {track['name']}", icon="✨")
             
             # st.markdown("### 🎵 Now Playing")
             with st.container(border=True):

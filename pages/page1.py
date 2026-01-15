@@ -301,7 +301,7 @@ def display_track_info(st):
             
             cell = st.session_state.ws.find(st.session_state.trackInfo["trackID"])
             row = int(cell.row)
-            current_rate = 0
+            current_rate = 2
         
         # 評価の表示と取得（共通処理）
         rate = st.radio("Rate", 
@@ -311,7 +311,7 @@ def display_track_info(st):
         )
         rate = star_options[rate]
         
-        print(f'current_rate: {current_rate}, rate: {rate}')
+#        print(f'current_rate: {current_rate}, rate: {rate}')
         
         # LikedInfo内の評価を更新
         flg = False
