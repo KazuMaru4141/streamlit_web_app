@@ -87,6 +87,15 @@ def initSessionState(st):
     if 'LikedInfo' not in st.session_state:
         st.session_state.LikedInfo = []
     
+    if 'OldAlbumInfo' not in st.session_state:
+        st.session_state.OldAlbumInfo = []
+    
+    if 'ws_old' not in st.session_state:
+        st.session_state.ws_old = None
+    
+    if 'wb_old' not in st.session_state:
+        st.session_state.wb_old = None
+    
 def updateSessionState(st):
     """
     セッション状態を現在再生中の曲情報で更新
@@ -192,42 +201,63 @@ def onclickSaved():
     """
     現在再生中のアルバムを保存済みアルバムとして記録
     
-    Googleスプレッドシート「SavedAlbums」にアルバム情報を追加
+    Googleスプレッドシート「OldAlbums」にアルバム情報を追加
     アルバム画像、アーティスト情報、リリース日などを記録
+    Featured列にTRUEを設定
+    
+    既に存在する場合は追加しないが、FeaturedがTRUEでない場合はTRUEに更新
     
     Args:
         なし
     """        
-    gs = GspreadCtrl
-    SP_SHEET_KEY = st.secrets.SP_SHEET_KEY.key_SpotifySavedAlbums
-    ws, wb, SpreadInfo = gs.connect_gspread(SP_SHEET_KEY)
-    today = getCurrentDateTime()
-    appendList = []
-    appendList.append([
-        today,
-        "",
-        st.session_state.trackInfo["albumName"],
-        st.session_state.trackInfo["artistName"],
-        st.session_state.trackInfo["albumImg"],
-        st.session_state.trackInfo["artistImg"],
-        st.session_state.trackInfo["albumID"],
-        st.session_state.trackInfo["albumURL"],
-        st.session_state.trackInfo["artistID"],
-        st.session_state.trackInfo["artistURL"],
-        st.session_state.trackInfo["total_tracks"],
-        0,
-        0,
-        "",
-        "",
-        st.session_state.trackInfo["artistPopularity"],
-        "",
-        st.session_state.trackInfo["type"],
-        st.session_state.trackInfo["releaseDate"],
-        ", ".join(st.session_state.trackInfo["genre"]),
-        ""
-    ])
-    ws.append_rows(appendList)
-    st.write(f'Successfully Saved!')
+    # アルバムIDのリストを取得（G列 = 7列目）
+    albumIdList = st.session_state.ws_old.col_values(7)
+    
+    # アルバムが既に存在するかチェック
+    if st.session_state.trackInfo["albumID"] not in albumIdList:
+        today = getCurrentDateTime()
+        appendList = []
+        appendList.append([
+            today,
+            "",
+            st.session_state.trackInfo["albumName"],
+            st.session_state.trackInfo["artistName"],
+            st.session_state.trackInfo["albumImg"],
+            st.session_state.trackInfo["artistImg"],
+            st.session_state.trackInfo["albumID"],
+            st.session_state.trackInfo["albumURL"],
+            st.session_state.trackInfo["artistID"],
+            st.session_state.trackInfo["artistURL"],
+            st.session_state.trackInfo["total_tracks"],
+            0,
+            0,
+            "",
+            "",
+            st.session_state.trackInfo["artistPopularity"],
+            "",
+            st.session_state.trackInfo["type"],
+            st.session_state.trackInfo["releaseDate"],
+            ", ".join(st.session_state.trackInfo["genre"]),
+            "",
+            "",
+            "TRUE"  # W列: Featured Key
+        ])
+        st.session_state.ws_old.append_rows(appendList)
+        st.write(f'Successfully Saved!')
+    else:
+        # アルバムが既に存在する場合、Featured列をチェック
+        cell = st.session_state.ws_old.find(st.session_state.trackInfo["albumID"])
+        row = int(cell.row)
+        
+        # W列（23列目）のFeatured値を取得
+        featured_value = st.session_state.ws_old.cell(row, 23).value
+        
+        # FeaturedがTRUEでない場合、TRUEに更新
+        if featured_value != "TRUE":
+            st.session_state.ws_old.update_cell(row, 23, "TRUE")
+            st.write(f'Featured Updated to TRUE!')
+        else:
+            st.write(f'Already Saved!')
 
 def readSpreadSheet(st):
     """
@@ -243,6 +273,8 @@ def readSpreadSheet(st):
         with st.spinner("Loading..."):
             st.session_state.gs = GspreadCtrl
             st.session_state.ws, st.session_state.wb, st.session_state.LikedInfo = st.session_state.gs.connect_gspread(st.secrets.SP_SHEET_KEY.Key_LikedSongs)
+            # Load Old Albums data
+            st.session_state.ws_old, st.session_state.wb_old, st.session_state.OldAlbumInfo = st.session_state.gs.connect_gspread(st.secrets.SP_SHEET_KEY.key_SpotifySavedAlbumOld)
 
 def display_track_info(st):
     """
