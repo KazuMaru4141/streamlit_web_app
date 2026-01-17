@@ -2,7 +2,21 @@ import streamlit as st
 import spotipy
 import spotipy.util as util
 from spotipy.oauth2 import SpotifyClientCredentials
-from spotipy.oauth2 import SpotifyOAuth
+from spotipy.cache_handler import CacheHandler
+
+class StreamlitSessionCacheHandler(CacheHandler):
+    """
+    Streamlitのセッションステートを使用してSpotifyトークンをキャッシュするハンドラ
+    """
+    def __init__(self):
+        if 'spotify_token' not in st.session_state:
+            st.session_state.spotify_token = None
+
+    def get_cached_token(self):
+        return st.session_state.spotify_token
+
+    def save_token_to_cache(self, token_info):
+        st.session_state.spotify_token = token_info
 
 class SpotifyCtrl:
     def create_spotify():
@@ -14,13 +28,16 @@ class SpotifyCtrl:
         """
         SCOPE = 'user-library-read user-read-playback-state user-modify-playback-state playlist-read-private user-read-recently-played playlist-read-collaborative playlist-modify-public playlist-modify-private'
         
+        cache_handler = StreamlitSessionCacheHandler()
+        
         auth_manager = SpotifyOAuth(
             scope=SCOPE,
             username=st.secrets.SPOTIFY_AUTH.my_user_name,
             redirect_uri=st.secrets.SPOTIFY_AUTH.redirect_url,
             client_id=st.secrets.SPOTIFY_AUTH.my_id,
             client_secret=st.secrets.SPOTIFY_AUTH.my_secret,
-            open_browser=False
+            open_browser=False,
+            cache_handler=cache_handler
         )
         
         spotify = spotipy.Spotify(auth_manager=auth_manager)
