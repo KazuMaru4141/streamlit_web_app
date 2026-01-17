@@ -17,7 +17,7 @@ import spotipy.util as util
 from spotipy.oauth2 import SpotifyClientCredentials
 from spotipy.oauth2 import SpotifyOAuth
 
-from SpotifyAPI import SpotifyCtrl
+from SpotifyAPI import SpotifyCtrl, call_spotify_api_with_timeout
 from spotify_auth import get_auth_manager
 
 import datetime
@@ -150,6 +150,9 @@ def initSessionState(st):
     if 'wb_old' not in st.session_state:
         st.session_state.wb_old = None
     
+    if 'artistInfoSuccess' not in st.session_state:
+        st.session_state.artistInfoSuccess = True
+    
 def updateSessionState(st):
     """
     セッション状態を現在再生中の曲情報で更新
@@ -172,20 +175,59 @@ def updateSessionState(st):
         
         if st.session_state.trackInfo["albumID"] != currentTrack["item"]["album"]["id"]:
             st.session_state.trackInfo["albumID"] = currentTrack["item"]["album"]["id"]
-            st.session_state.trackInfo["albumTracks"] = spotify.album_tracks(currentTrack["item"]["album"]["id"])
+            
+            # アルバムトラック取得にタイムアウトを適用
+            album_result = call_spotify_api_with_timeout(
+                spotify.album_tracks,
+                5,
+                currentTrack["item"]["album"]["id"]
+            )
+            
+            if album_result["completed"] and album_result["data"]:
+                st.session_state.trackInfo["albumTracks"] = album_result["data"]
+            elif album_result["rate_limited"]:
+                st.warning("⚠️ API rate limit reached - album tracks unavailable")
+                st.session_state.trackInfo["albumTracks"] = None
+            else:
+                st.info("⏱️ Album tracks loading timed out")
+                st.session_state.trackInfo["albumTracks"] = None
+                
         st.session_state.trackInfo["albumURL"] = currentTrack["item"]["album"]["external_urls"]["spotify"]
         st.session_state.trackInfo["releaseDate"] = currentTrack["item"]["album"]["release_date"]
         album_images = currentTrack["item"]["album"].get("images", [])
         st.session_state.trackInfo["albumImg"] = album_images[0]["url"] if album_images else ""
         st.session_state.trackInfo["type"] = currentTrack["item"]["album"]["type"]
         st.session_state.trackInfo["total_tracks"] = currentTrack["item"]["album"]["total_tracks"]
-        artistInfo = spotify.artist(st.session_state.trackInfo["artistID"])
-        st.session_state.artistInfo = artistInfo
-        st.session_state.trackInfo["genre"] = artistInfo.get("genres", [])
-        #        print(st.session_state.artistInfo)
-        artist_images = artistInfo.get("images", [])
-        st.session_state.trackInfo["artistImg"] = artist_images[0]["url"] if artist_images else ""
-        st.session_state.trackInfo["artistPopularity"] = artistInfo["popularity"]
+        
+        # アーティスト情報の取得にタイムアウトを適用
+        artist_result = call_spotify_api_with_timeout(
+            spotify.artist,
+            5,
+            st.session_state.trackInfo["artistID"]
+        )
+        
+        if artist_result["completed"] and artist_result["data"]:
+            artistInfo = artist_result["data"]
+            st.session_state.artistInfo = artistInfo
+            st.session_state.trackInfo["genre"] = artistInfo.get("genres", [])
+            artist_images = artistInfo.get("images", [])
+            st.session_state.trackInfo["artistImg"] = artist_images[0]["url"] if artist_images else ""
+            st.session_state.trackInfo["artistPopularity"] = artistInfo["popularity"]
+            st.session_state.artistInfoSuccess = True
+        elif artist_result["rate_limited"]:
+            st.warning("⚠️ API rate limit reached - artist info unavailable")
+            st.session_state.artistInfo = {}
+            st.session_state.trackInfo["genre"] = []
+            st.session_state.trackInfo["artistImg"] = ""
+            st.session_state.trackInfo["artistPopularity"] = ""
+            st.session_state.artistInfoSuccess = False
+        else:
+            st.info("⏱️ Artist info loading timed out")
+            st.session_state.artistInfo = {}
+            st.session_state.trackInfo["genre"] = []
+            st.session_state.trackInfo["artistImg"] = ""
+            st.session_state.trackInfo["artistPopularity"] = ""
+            st.session_state.artistInfoSuccess = False
         
         try:
             now_playing = pc.getNowPlaying(lastfm_user)
@@ -599,8 +641,13 @@ if currentTrack != None:
     
     # 各セクションを関数で表示
     display_track_info(st)
-    display_album_info(st)
-    display_artist_info(st)
+    
+    # アーティスト情報の取得に成功した場合のみアルバム情報を表示
+    if st.session_state.artistInfoSuccess:
+        display_album_info(st)
+        display_artist_info(st)
+    else:
+        st.warning("⚠️ Album and artist information could not be displayed due to Spotify API error.")
 else:
     st.text(f'Track is not playing')
     

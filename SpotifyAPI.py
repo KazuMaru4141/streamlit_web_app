@@ -3,6 +3,45 @@ import spotipy
 import spotipy.util as util
 from spotipy.oauth2 import SpotifyClientCredentials, SpotifyOAuth
 from spotify_auth import get_auth_manager
+import threading
+import logging
+
+def call_spotify_api_with_timeout(api_function, timeout=5, *args, **kwargs):
+    """
+    Spotify APIを呼び出し、タイムアウトを設定
+    
+    Args:
+        api_function: 実行するSpotify API関数
+        timeout (int): タイムアウト時間（秒）デフォルトは5秒
+        *args: API関数に渡す位置引数
+        **kwargs: API関数に渡すキーワード引数
+        
+    Returns:
+        dict: {"data": API結果, "completed": 成功フラグ, "rate_limited": レート制限フラグ, "error": エラーメッセージ}
+    """
+    result = {"data": None, "completed": False, "rate_limited": False, "error": None}
+    
+    def fetch_data():
+        try:
+            result["data"] = api_function(*args, **kwargs)
+            result["completed"] = True
+        except Exception as e:
+            error_msg = str(e).lower()
+            # レート制限エラーをチェック
+            if "rate" in error_msg or "limit" in error_msg or "429" in error_msg:
+                result["rate_limited"] = True
+                result["error"] = "API rate limit reached"
+            else:
+                result["error"] = str(e)
+            result["completed"] = False
+            logging.error(f"Spotify API error: {str(e)}")
+    
+    # スレッドでAPI呼び出し
+    thread = threading.Thread(target=fetch_data, daemon=True)
+    thread.start()
+    thread.join(timeout=timeout)
+    
+    return result
 
 class SpotifyCtrl:
     def create_spotify():
@@ -146,17 +185,23 @@ class SpotifyCtrl:
             st.error(f"前の曲への切り替えに失敗しました: {str(e)}")
             return False
     
-    def getRecentPlayedTracs(spotify):
+    def getRecentPlayedTracs(spotify, timeout=5):
         """
         最近再生した曲を取得（最大50件）
+        タイムアウト付きで実行
         
         Args:
             spotify: Spotifyクライアント
+            timeout (int): タイムアウト時間（秒）デフォルトは5秒
             
         Returns:
-            dict: 最近再生した曲の情報
+            dict: {"data": 最近再生した曲の情報, "completed": 成功フラグ, "rate_limited": レート制限フラグ}
         """
-        return spotify.current_user_recently_played(limit=50)
+        return call_spotify_api_with_timeout(
+            spotify.current_user_recently_played,
+            timeout=timeout,
+            limit=50
+        )
 
     def getAudioFeature(spotify, trackId):
         """

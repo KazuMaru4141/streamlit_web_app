@@ -17,11 +17,98 @@ class OverviewController:
         gc = GspreadCtrl
         self.wsLiked, self.wbLiked, self.LikedInfo = gc.connect_gspread(st.secrets.SP_SHEET_KEY.Key_LikedSongs)
         
+        # OldAlbum スプレッドシートから情報を取得
+        self.wsOldAlbum, self.wbOldAlbum, self.OldAlbumInfo = gc.connect_gspread(st.secrets.SP_SHEET_KEY.key_SpotifySavedAlbumOld)
+        
         # ポーリング用の現在の曲情報を保存
         if "current_track_id" not in st.session_state:
             st.session_state.current_track_id = None
         if "previous_track_id" not in st.session_state:
             st.session_state.previous_track_id = None
+    
+    def getCurrentDateTime(self):
+        """
+        現在の日時を取得
+        
+        Returns:
+            str: "YYYY-MM-DD HH:MM:SS" 形式の日時文字列
+        """
+        import datetime
+        import pytz
+        dt_now = datetime.datetime.now(tz=pytz.timezone("Asia/Tokyo"))
+        return f"{dt_now.year}-{dt_now.month}-{dt_now.day} {dt_now.hour:02d}:{dt_now.minute:02d}:{dt_now.second:02d}"
+    
+    def onclickSaved(self, track):
+        """
+        現在再生中のアルバムを保存済みアルバムとして記録
+        
+        Googleスプレッドシート「OldAlbums」にアルバム情報を追加
+        アルバム画像、アーティスト情報、リリース日などを記録
+        Featured列にTRUEを設定
+        
+        既に存在する場合は追加しないが、FeaturedがTRUEでない場合はTRUEに更新
+        
+        Args:
+            track: 現在再生中のトラック情報
+        """
+        album_id = track["album"]["id"]
+        
+        # アルバムIDのリストを取得（G列 = 7列目）
+        albumIdList = self.wsOldAlbum.col_values(7)
+        
+        # アルバムが既に存在するかチェック
+        if album_id not in albumIdList:
+            # アーティスト情報を取得
+            artist_id = track["artists"][0]["id"]
+            artistInfo = self.spotify.artist(artist_id)
+            
+            today = self.getCurrentDateTime()
+            appendList = []
+            appendList.append([
+                today,
+                "",
+                track["album"]["name"],
+                track["artists"][0]["name"],
+                track["album"]["images"][0]["url"] if track["album"]["images"] else "",
+                artistInfo.get("images", [{}])[0].get("url", "") if artistInfo.get("images") else "",
+                album_id,
+                track["album"]["external_urls"]["spotify"],
+                artist_id,
+                track["artists"][0]["external_urls"]["spotify"],
+                track["album"]["total_tracks"],
+                0,
+                0,
+                "",
+                "",
+                artistInfo.get("popularity", ""),
+                "",
+                track["album"]["type"],
+                track["album"]["release_date"],
+                ", ".join(artistInfo.get("genres", [])),
+                "",
+                "",
+                "TRUE"  # W列: Featured Key
+            ])
+            self.wsOldAlbum.append_rows(appendList)
+            st.success('Successfully Saved!')
+            # セッション状態を更新
+            self.OldAlbumInfo = self.wsOldAlbum.get_all_records()
+        else:
+            # アルバムが既に存在する場合、Featured列をチェック
+            cell = self.wsOldAlbum.find(album_id)
+            row = int(cell.row)
+            
+            # W列（23列目）のFeatured値を取得
+            featured_value = self.wsOldAlbum.cell(row, 23).value
+            
+            # FeaturedがTRUEでない場合、TRUEに更新
+            if featured_value != "TRUE":
+                self.wsOldAlbum.update_cell(row, 23, "TRUE")
+                st.success('Featured Updated to TRUE!')
+                # セッション状態を更新
+                self.OldAlbumInfo = self.wsOldAlbum.get_all_records()
+            else:
+                st.info('Already Saved!')
     
     def check_track_changed(self):
         """
@@ -78,6 +165,21 @@ class OverviewController:
                 col1, col2, col3 = st.columns([1, 4, 5], vertical_alignment="center")
                 with col1:
                     st.image({track["album"]["images"][0]["url"]}, width=50)
+                    
+                    # 保存済みかチェック（AlbumIDが一致し、かつFeaturedキーがTRUEのもの）
+                    album_id = track["album"]["id"]
+                    is_saved = any(
+                        album.get("AlbumID") == album_id and 
+                        (album.get("Featured") == "TRUE" or album.get("Featured Key") == "TRUE")
+                        for album in self.OldAlbumInfo
+                    )
+                    
+                    if is_saved:
+                        # 保存済みの場合はアイコン（非ボタン）を表示
+                        st.markdown("📁")
+                    else:
+                        # 未保存の場合は保存ボタンを表示
+                        st.button('✅', on_click=self.onclickSaved, args=(track,), key=f"save_{album_id}")
                 
                 with col2:
                     st.markdown(f'[{track["name"]}]({track["external_urls"]["spotify"]})  \n [{track["artists"][0]["name"]}]({track["artists"][0]["external_urls"]["spotify"]})')
@@ -220,31 +322,38 @@ class OverviewController:
         
         with tab1:
             # st.markdown("### 📜 Recently Played")
-            recentTracks = self.sp.getRecentPlayedTracs(self.spotify)
+            recent_result = self.sp.getRecentPlayedTracs(self.spotify)
             
-#        st.write(f'total{recentTracks["items"]}')
-            for track in recentTracks["items"]:
-                with st.container(border=True):
-                    col1, col2, col3, col4 = st.columns([1, 4, 2, 5], vertical_alignment="center")
-                    with col1:
-                        st.image({track["track"]["album"]["images"][0]["url"]}, width=50)
-                    
-                    with col2:
-                        st.markdown(f'[{track["track"]["name"]}]({track["track"]["external_urls"]["spotify"]})  \n [{track["track"]["artists"][0]["name"]}]({track["track"]["artists"][0]["external_urls"]["spotify"]})  \n {track["played_at"]}')
-                    
-                    with col3:
-                        # スプレッドシートから rating を取得
-                        track_id = track["track"]["id"]
-                        rating = 0
-                        for liked_song in self.LikedInfo:
-                            if liked_song.get("TrackID") == track_id:
-                                rating = liked_song.get("Rating", 0)
-                                break
-                        rating_str = disp_rate.get(rating, "☆☆☆☆☆")
-                        st.markdown(f'**{rating_str}**')
-                    
-                    with col4:
-                        pass
+            if recent_result["completed"] and recent_result["data"]:
+                recentTracks = recent_result["data"]
+                
+                #        st.write(f'total{recentTracks["items"]}')
+                for track in recentTracks["items"]:
+                    with st.container(border=True):
+                        col1, col2, col3, col4 = st.columns([1, 4, 2, 5], vertical_alignment="center")
+                        with col1:
+                            st.image({track["track"]["album"]["images"][0]["url"]}, width=50)
+                        
+                        with col2:
+                            st.markdown(f'[{track["track"]["name"]}]({track["track"]["external_urls"]["spotify"]})  \n [{track["track"]["artists"][0]["name"]}]({track["track"]["artists"][0]["external_urls"]["spotify"]})  \n {track["played_at"]}')
+                        
+                        with col3:
+                            # スプレッドシートから rating を取得
+                            track_id = track["track"]["id"]
+                            rating = 0
+                            for liked_song in self.LikedInfo:
+                                if liked_song.get("TrackID") == track_id:
+                                    rating = liked_song.get("Rating", 0)
+                                    break
+                            rating_str = disp_rate.get(rating, "☆☆☆☆☆")
+                            st.markdown(f'**{rating_str}**')
+                        
+                        with col4:
+                            pass
+            elif recent_result["rate_limited"]:
+                st.warning("⚠️ API rate limit reached - skipping recently played tracks")
+            else:
+                st.info("⏱️ Recently played tracks loading timed out - please try again later")
         
         with tab2:
             st.markdown("### 📊 Play Count Statistics")
