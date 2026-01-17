@@ -244,6 +244,8 @@ def onclickSaved():
         ])
         st.session_state.ws_old.append_rows(appendList)
         st.write(f'Successfully Saved!')
+        # セッション状態を更新
+        st.session_state.OldAlbumInfo = st.session_state.ws_old.get_all_records()
     else:
         # アルバムが既に存在する場合、Featured列をチェック
         cell = st.session_state.ws_old.find(st.session_state.trackInfo["albumID"])
@@ -256,8 +258,21 @@ def onclickSaved():
         if featured_value != "TRUE":
             st.session_state.ws_old.update_cell(row, 23, "TRUE")
             st.write(f'Featured Updated to TRUE!')
+            # セッション状態を更新
+            st.session_state.OldAlbumInfo = st.session_state.ws_old.get_all_records()
         else:
             st.write(f'Already Saved!')
+
+def onclickAddToQueue(trackUri, trackName):
+    """
+    トラックをSpotifyのキューに追加
+    
+    Args:
+        trackUri (str): トラックURI
+        trackName (str): トラック名
+    """
+    if sp.add_track_to_queue(spotify, trackUri):
+        st.toast(f"Queued: {trackName}", icon="➕")
 
 def readSpreadSheet(st):
     """
@@ -290,13 +305,27 @@ def display_track_info(st):
         st.markdown("### Track")
         st.image(st.session_state.trackInfo["albumImg"], width=70) 
     #    st.button('♥️', on_click=onclickLiked)
-        st.button('✅', on_click=onclickSaved)
+        
+        # 保存済みかチェック（AlbumIDが一致し、かつFeaturedキーがTRUEのもの）
+        is_saved = any(
+            st.session_state.trackInfo["albumID"] in album.values() and 
+            (album.get("Featured") == "TRUE" or album.get("Featured Key") == "TRUE")
+            for album in st.session_state.OldAlbumInfo
+        )
+        
+        if is_saved:
+            # 保存済みの場合はアイコン（非ボタン）を表示
+            st.markdown("📁 Already Saved")
+        else:
+            # 未保存の場合は保存ボタンを表示
+            st.button('✅', on_click=onclickSaved)
+            
         st.write(f'__{st.session_state.trackInfo["trackName"]}__ by __{st.session_state.trackInfo["artistName"]}__ ({st.session_state.trackInfo["releaseDate"]})')
         st.markdown(f'🎤 {st.session_state.playCount["artistPlayCount"]} &nbsp; &nbsp; 💿 {st.session_state.playCount["albumPlayCount"]}  &nbsp; &nbsp; 🎵 {st.session_state.playCount["track_play_count"]}  \n ⏭️ {st.session_state.playCount["playCountToday"]} &nbsp; &nbsp; &nbsp; ▶️ {st.session_state.playCount["OverallPlayCount"]}')    
             
         star_options = {
             "★": 1,
-            "★★" : 2, 
+            "★★" : 2,
             "★★★" : 3, 
             "★★★★" : 4, 
             "★★★★★" : 5
@@ -428,15 +457,42 @@ def display_album_info(st):
             st.markdown(f'[link]({st.session_state.trackInfo["albumURL"]})')
             
             dispAlbum.append(["Name", str(st.session_state.trackInfo["albumName"])])
-            dispAlbum.append(["Score", str(average)])
+            dispAlbum.append(["Score", f"{average:.1f}"])
             dispAlbum.append(["Release Date", str(st.session_state.trackInfo["releaseDate"])])
             dispAlbum.append(["Genre", ", ".join(st.session_state.trackInfo["genre"])])
             dataframe = pd.DataFrame(dispAlbum)
             st.table(dataframe)
             
-            df = pd.DataFrame(album_table, columns=["Track Name", "Rate"])
-            df.index = df.index + 1
-            st.table(df)
+            # トラックリストをインタラクティブに表示
+            st.markdown("#### Tracks")
+            
+            # ヘッダー
+            col1, col2, col3, col4 = st.columns([0.5, 4, 2, 1])
+            col1.write("**#**")
+            col2.write("**Track Name**")
+            col3.write("**Rate**")
+            col4.write("**Queue**")
+            
+            cnt = 1
+            for track in st.session_state.trackInfo["albumTracks"]["items"]:
+                trackname = track["name"]
+                trackid = track["id"]
+                trackuri = track["uri"]
+                
+                current_rate = 0
+                for likedSong in st.session_state.LikedInfo:
+                    if trackid == likedSong["TrackID"]:
+                        current_rate = likedSong["Rating"]
+                
+                disp = disp_rate[current_rate]
+                
+                c1, c2, c3, c4 = st.columns([0.5, 4, 2, 1])
+                c1.write(str(cnt))
+                c2.write(trackname)
+                c3.write(disp)
+                c4.button("➕", key=f"q_{trackid}", on_click=onclickAddToQueue, args=(trackuri, trackname))
+                cnt += 1
+            
             st.write(f'total point {album_rate}')
 
 def display_artist_info(st):
