@@ -176,21 +176,21 @@ class SpotifyCtrl:
         """
         return spotify.audio_features(trackId)
     
-    def add_track_to_queue(spotify, trackUri):
-        """
-        トラックをSpotifyのキューに追加
+    # def add_track_to_queue(spotify, trackUri):
+    #     """
+    #     トラックをSpotifyのキューに追加
         
-        Args:
-            spotify: Spotifyクライアント
-            trackUri (str): トラックURI
+    #     Args:
+    #         spotify: Spotifyクライアント
+    #         trackUri (str): トラックURI
             
-        Returns:
-            bool: 成功時True、失敗時False
-        """
-        try:
-            spotify.add_to_queue(trackUri)
-            return True
-        except Exception as e:
-            st.error(f"キューへの追加に失敗しました: {str(e)}")
-            return False
+    #     Returns:
+    #         bool: 成功時True、失敗時False
+    #     """
+    #     try:
+    #         spotify.add_to_queue(trackUri)
+    #         return True
+    #     except Exception as e:
+    #         st.error(f"キューへの追加に失敗しました: {str(e)}")
+    #         return False
         

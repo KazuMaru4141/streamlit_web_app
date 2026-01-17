@@ -271,8 +271,8 @@ def onclickAddToQueue(trackUri, trackName):
         trackUri (str): トラックURI
         trackName (str): トラック名
     """
-    if sp.add_track_to_queue(spotify, trackUri):
-        st.toast(f"Queued: {trackName}", icon="➕")
+    # if sp.add_track_to_queue(spotify, trackUri):
+    #     st.toast(f"Queued: {trackName}", icon="➕")
 
 def readSpreadSheet(st):
     """
