@@ -244,6 +244,8 @@ def onclickSaved():
         ])
         st.session_state.ws_old.append_rows(appendList)
         st.write(f'Successfully Saved!')
+        # セッション状態を更新
+        st.session_state.OldAlbumInfo = st.session_state.ws_old.get_all_records()
     else:
         # アルバムが既に存在する場合、Featured列をチェック
         cell = st.session_state.ws_old.find(st.session_state.trackInfo["albumID"])
@@ -256,6 +258,8 @@ def onclickSaved():
         if featured_value != "TRUE":
             st.session_state.ws_old.update_cell(row, 23, "TRUE")
             st.write(f'Featured Updated to TRUE!')
+            # セッション状態を更新
+            st.session_state.OldAlbumInfo = st.session_state.ws_old.get_all_records()
         else:
             st.write(f'Already Saved!')
 
@@ -290,13 +294,27 @@ def display_track_info(st):
         st.markdown("### Track")
         st.image(st.session_state.trackInfo["albumImg"], width=70) 
     #    st.button('♥️', on_click=onclickLiked)
-        st.button('✅', on_click=onclickSaved)
+        
+        # 保存済みかチェック（AlbumIDが一致し、かつFeaturedキーがTRUEのもの）
+        is_saved = any(
+            st.session_state.trackInfo["albumID"] in album.values() and 
+            (album.get("Featured") == "TRUE" or album.get("Featured Key") == "TRUE")
+            for album in st.session_state.OldAlbumInfo
+        )
+        
+        if is_saved:
+            # 保存済みの場合はアイコン（非ボタン）を表示
+            st.markdown("📁 Already Saved")
+        else:
+            # 未保存の場合は保存ボタンを表示
+            st.button('✅', on_click=onclickSaved)
+            
         st.write(f'__{st.session_state.trackInfo["trackName"]}__ by __{st.session_state.trackInfo["artistName"]}__ ({st.session_state.trackInfo["releaseDate"]})')
         st.markdown(f'🎤 {st.session_state.playCount["artistPlayCount"]} &nbsp; &nbsp; 💿 {st.session_state.playCount["albumPlayCount"]}  &nbsp; &nbsp; 🎵 {st.session_state.playCount["track_play_count"]}  \n ⏭️ {st.session_state.playCount["playCountToday"]} &nbsp; &nbsp; &nbsp; ▶️ {st.session_state.playCount["OverallPlayCount"]}')    
             
         star_options = {
             "★": 1,
-            "★★" : 2, 
+            "★★" : 2,
             "★★★" : 3, 
             "★★★★" : 4, 
             "★★★★★" : 5
