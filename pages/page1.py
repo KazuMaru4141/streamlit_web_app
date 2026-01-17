@@ -530,6 +530,26 @@ def display_artist_info(st):
 initSessionState(st)
 readSpreadSheet(st)
 
+auth_manager, spotify = sp.create_spotify()
+
+# URLのクエリパラメータから認可コードを取得
+query_params = st.query_params
+if "code" in query_params:
+    auth_manager.get_access_token(query_params["code"])
+    # 認証後にURLを綺麗にする（任意。リダイレクトが発生します）
+    # st.query_params.clear()
+
+# 認証済みか、有効なトークンがあるかチェック
+token_info = auth_manager.validate_token(auth_manager.cache_handler.get_cached_token())
+
+if not token_info:
+    # 認証されていない場合はログインボタンを表示
+    auth_url = auth_manager.get_authorize_url()
+    st.title("Spotify Authentication Required")
+    st.write("このアプリを使用するには Spotify での認証が必要です。")
+    st.link_button("Login with Spotify", auth_url)
+    st.stop()
+
 currentTrack = spotify.current_user_playing_track()
 
 if currentTrack != None:

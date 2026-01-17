@@ -15,11 +15,13 @@ class SpotifyCtrl:
         SCOPE = 'user-library-read user-read-playback-state user-modify-playback-state playlist-read-private user-read-recently-played playlist-read-collaborative playlist-modify-public playlist-modify-private'
         
         auth_manager = SpotifyOAuth(
-        scope=SCOPE,
-        username=st.secrets.SPOTIFY_AUTH.my_user_name,
-        redirect_uri=st.secrets.SPOTIFY_AUTH.redirect_url,
-        client_id=st.secrets.SPOTIFY_AUTH.my_id,
-        client_secret=st.secrets.SPOTIFY_AUTH.my_secret)
+            scope=SCOPE,
+            username=st.secrets.SPOTIFY_AUTH.my_user_name,
+            redirect_uri=st.secrets.SPOTIFY_AUTH.redirect_url,
+            client_id=st.secrets.SPOTIFY_AUTH.my_id,
+            client_secret=st.secrets.SPOTIFY_AUTH.my_secret,
+            open_browser=False
+        )
         
         spotify = spotipy.Spotify(auth_manager=auth_manager)
 
