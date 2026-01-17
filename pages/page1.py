@@ -490,7 +490,7 @@ def display_album_info(st):
                 c1.write(str(cnt))
                 c2.write(trackname)
                 c3.write(disp)
-                c4.button("➕", key=f"q_{trackid}", on_click=onclickAddToQueue, args=(trackuri, trackname))
+                # c4.button("➕", key=f"q_{trackid}", on_click=onclickAddToQueue, args=(trackuri, trackname))
                 cnt += 1
             
             st.write(f'total point {album_rate}')
