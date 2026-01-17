@@ -1,6 +1,12 @@
 import streamlit as st
 from PIL import Image
 from streamlit_autorefresh import st_autorefresh
+import sys
+import os
+
+# ページディレクトリから実行される場合、親ディレクトリをパスに追加
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from SpreadSheetAPI import GspreadCtrl
 from pylastCtrl import pylastCtrl
 import pytz
@@ -12,17 +18,55 @@ from spotipy.oauth2 import SpotifyClientCredentials
 from spotipy.oauth2 import SpotifyOAuth
 
 from SpotifyAPI import SpotifyCtrl
+from spotify_auth import get_auth_manager
 
 import datetime
 
 st.set_page_config(layout="wide")
 
+# ===== 認証フロー処理 =====
+auth_manager = get_auth_manager()
+
+# URLパラメータから認証コードを取得
+query_params = st.query_params
+if 'code' in query_params:
+    # 認証コールバックを処理
+    code = query_params['code']
+    if auth_manager.handle_callback(code):
+        st.success("✅ Spotify認証に成功しました！")
+        # URLパラメータをクリア
+        st.query_params.clear()
+        st.rerun()
+    else:
+        st.error("❌ 認証に失敗しました。もう一度お試しください。")
+
+# 認証状態をチェック
+if not auth_manager.is_authenticated():
+    st.title("🎵 Spotify Music Manager")
+    st.markdown("---")
+    st.markdown("### Spotifyアカウントで認証してください")
+    st.markdown("このアプリを使用するには、Spotifyアカウントでの認証が必要です。")
+    
+    # 認証URLを生成
+    auth_url = auth_manager.get_auth_url()
+    
+    # 認証ボタンを表示
+    st.markdown(f"[🔐 Spotifyで認証する]({auth_url})")
+    st.info("💡 認証後、このページに自動的に戻ります。")
+    st.stop()
+
+# ===== 認証済み - 通常のアプリケーション処理 =====
 sp = SpotifyCtrl
 auth_manager, spotify = sp.create_spotify()
 
-pc = pylastCtrl
-lastfm_network = pc.getNetwork()
-lastfm_user = pc.getUser(lastfm_network)
+# Spotifyクライアントが取得できない場合（トークン期限切れなど）
+if spotify is None:
+    st.error("❌ Spotify接続エラー。再認証が必要です。")
+    if st.button("🔄 再認証"):
+        auth_manager.logout()
+        st.rerun()
+    st.stop()
+
 
 def getCurrentDateTime():
     """
@@ -527,6 +571,12 @@ def display_artist_info(st):
 
 ############### Main #######################################
 #st.write(f'#### Now Playing')
+
+# Last.fm初期化
+pc = pylastCtrl
+lastfm_network = pc.getNetwork()
+lastfm_user = pc.getUser(lastfm_network)
+
 initSessionState(st)
 readSpreadSheet(st)
 
