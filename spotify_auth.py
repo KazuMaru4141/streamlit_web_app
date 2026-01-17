@@ -8,14 +8,16 @@ Authorization Code Flowを使用したSpotify認証を管理します。
 import streamlit as st
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
+from spotipy.cache_handler import CacheFileHandler
 import time
+import os
 from typing import Optional, Tuple
 
 
 class SpotifyAuthManager:
     """Spotify OAuth認証を管理するクラス"""
     
-    def __init__(self, client_id: str, client_secret: str, redirect_uri: str, scope: str):
+    def __init__(self, client_id: str, client_secret: str, redirect_uri: str, scope: str, cache_path: str = ".cache"):
         """
         認証マネージャーを初期化
         
@@ -24,19 +26,24 @@ class SpotifyAuthManager:
             client_secret: Spotify Client Secret
             redirect_uri: OAuth リダイレクトURI
             scope: 必要な権限のスコープ
+            cache_path: トークンキャッシュファイルのパス
         """
         self.client_id = client_id
         self.client_secret = client_secret
         self.redirect_uri = redirect_uri
         self.scope = scope
+        self.cache_path = cache_path
         
-        # SpotifyOAuthオブジェクトを作成（キャッシュなし）
+        # キャッシュハンドラーを作成
+        cache_handler = CacheFileHandler(cache_path=cache_path)
+        
+        # SpotifyOAuthオブジェクトを作成（ファイルキャッシュを使用）
         self.sp_oauth = SpotifyOAuth(
             client_id=client_id,
             client_secret=client_secret,
             redirect_uri=redirect_uri,
             scope=scope,
-            cache_path=None,  # ファイルキャッシュを無効化
+            cache_handler=cache_handler,
             show_dialog=False
         )
     
@@ -64,9 +71,29 @@ class SpotifyAuthManager:
             token_info = self.sp_oauth.get_access_token(code, as_dict=True, check_cache=False)
             
             if token_info:
-                # セッション状態にトークン情報を保存
+                # まずセッション状態に保存
                 st.session_state['spotify_token_info'] = token_info
                 st.session_state['spotify_authenticated'] = True
+                
+                # ファイルにも保存を試みる
+                try:
+                    import os
+                    import json
+                    abs_cache_path = os.path.abspath(self.cache_path)
+                    
+                    with open(abs_cache_path, 'w') as f:
+                        json.dump(token_info, f, indent=2)
+                    
+                    # 書き込み確認
+                    if os.path.exists(abs_cache_path):
+                        file_size = os.path.getsize(abs_cache_path)
+                        st.session_state['cache_file_saved'] = True
+                        st.session_state['cache_file_path'] = abs_cache_path
+                except Exception as file_error:
+                    # ファイル保存に失敗してもセッション状態があるので続行
+                    st.session_state['cache_file_saved'] = False
+                    st.session_state['cache_error'] = str(file_error)
+                
                 return True
             return False
         except Exception as e:
@@ -75,12 +102,30 @@ class SpotifyAuthManager:
     
     def get_cached_token(self) -> Optional[dict]:
         """
-        セッション状態からトークン情報を取得
+        キャッシュからトークン情報を取得（セッション状態優先、次にファイル）
         
         Returns:
             dict: トークン情報、存在しない場合はNone
         """
-        return st.session_state.get('spotify_token_info')
+        # まずセッション状態を確認
+        if 'spotify_token_info' in st.session_state:
+            return st.session_state['spotify_token_info']
+        
+        # セッション状態になければファイルから読み込み
+        import os
+        import json
+        
+        if not os.path.exists(self.cache_path):
+            return None
+        
+        try:
+            with open(self.cache_path, 'r') as f:
+                token = json.load(f)
+            # ファイルから読み込んだらセッション状態にも保存
+            st.session_state['spotify_token_info'] = token
+            return token
+        except Exception as e:
+            return None
     
     def is_token_expired(self, token_info: dict) -> bool:
         """
@@ -120,6 +165,15 @@ class SpotifyAuthManager:
             
             # セッション状態を更新
             st.session_state['spotify_token_info'] = new_token_info
+            
+            # ファイルにも保存
+            try:
+                import json
+                with open(self.cache_path, 'w') as f:
+                    json.dump(new_token_info, f, indent=2)
+            except:
+                pass  # ファイル保存失敗は無視
+            
             return new_token_info
         except Exception as e:
             st.error(f"トークン更新エラー: {str(e)}")
@@ -166,14 +220,25 @@ class SpotifyAuthManager:
         Returns:
             bool: 認証済みの場合True
         """
-        return st.session_state.get('spotify_authenticated', False) and self.get_cached_token() is not None
+        # キャッシュファイルにトークンが存在するかチェック
+        token_info = self.get_cached_token()
+        return token_info is not None
     
     def logout(self):
         """認証情報をクリア"""
+        # セッション状態をクリア
         if 'spotify_token_info' in st.session_state:
             del st.session_state['spotify_token_info']
         if 'spotify_authenticated' in st.session_state:
             del st.session_state['spotify_authenticated']
+        
+        # キャッシュファイルを削除
+        import os
+        if os.path.exists(self.cache_path):
+            try:
+                os.remove(self.cache_path)
+            except:
+                pass
 
 
 def get_auth_manager() -> SpotifyAuthManager:

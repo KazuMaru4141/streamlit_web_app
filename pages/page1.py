@@ -17,12 +17,7 @@ import spotipy.util as util
 from spotipy.oauth2 import SpotifyClientCredentials
 from spotipy.oauth2 import SpotifyOAuth
 
-# モジュールを強制的にリロード
-import importlib
-import SpotifyAPI
-importlib.reload(SpotifyAPI)
 from SpotifyAPI import SpotifyCtrl
-
 from spotify_auth import get_auth_manager
 
 import datetime
@@ -37,6 +32,7 @@ query_params = st.query_params
 if 'code' in query_params:
     # 認証コールバックを処理
     code = query_params['code']
+    
     if auth_manager.handle_callback(code):
         st.success("✅ Spotify認証に成功しました！")
         # URLパラメータをクリア
@@ -61,6 +57,15 @@ if not auth_manager.is_authenticated():
     st.stop()
 
 # ===== 認証済み - 通常のアプリケーション処理 =====
+
+# サイドバーにナビゲーションを追加
+st.sidebar.title("📍 Navigation")
+st.sidebar.markdown("---")
+st.sidebar.markdown("🏠 [main app](/)")
+st.sidebar.markdown("📊 [Dashboard](/0_Dashboard)")
+st.sidebar.markdown("🎵 [page1](/page1)")
+st.sidebar.markdown("---")
+
 sp = SpotifyCtrl
 auth_manager, spotify = sp.create_spotify()
 

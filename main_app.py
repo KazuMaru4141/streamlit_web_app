@@ -46,6 +46,15 @@ if not auth_manager.is_authenticated():
     st.stop()
 
 # ===== 認証済み - 通常のアプリケーション処理 =====
+
+# サイドバーにナビゲーションを追加
+st.sidebar.title("📍 Navigation")
+st.sidebar.markdown("---")
+st.sidebar.markdown("🏠 [main app](/)")
+st.sidebar.markdown("📊 [Dashboard](/0_Dashboard)")
+st.sidebar.markdown("🎵 [page1](/page1)")
+st.sidebar.markdown("---")
+
 sp = SpotifyCtrl
 gs = GspreadCtrl
 auth_manager, spotify = sp.create_spotify()
