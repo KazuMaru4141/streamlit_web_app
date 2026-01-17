@@ -12,7 +12,7 @@ class SpotifyCtrl:
         Returns:
             tuple: (auth_manager, spotify) - 認証マネージャーとSpotifyクライアント
         """
-        SCOPE = 'user-library-read user-read-playback-state playlist-read-private user-read-recently-played playlist-read-collaborative playlist-modify-public playlist-modify-private'
+        SCOPE = 'user-library-read user-read-playback-state user-modify-playback-state playlist-read-private user-read-recently-played playlist-read-collaborative playlist-modify-public playlist-modify-private'
         
         auth_manager = SpotifyOAuth(
         scope=SCOPE,
@@ -175,4 +175,22 @@ class SpotifyCtrl:
             dict: オーディオ機能情報
         """
         return spotify.audio_features(trackId)
+    
+    def add_track_to_queue(spotify, trackUri):
+        """
+        トラックをSpotifyのキューに追加
+        
+        Args:
+            spotify: Spotifyクライアント
+            trackUri (str): トラックURI
+            
+        Returns:
+            bool: 成功時True、失敗時False
+        """
+        try:
+            spotify.add_to_queue(trackUri)
+            return True
+        except Exception as e:
+            st.error(f"キューへの追加に失敗しました: {str(e)}")
+            return False
         
