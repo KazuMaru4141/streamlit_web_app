@@ -1,7 +1,7 @@
 import streamlit as st
 import spotipy
 import spotipy.util as util
-from spotipy.oauth2 import SpotifyClientCredentials
+from spotipy.oauth2 import SpotifyClientCredentials, SpotifyOAuth
 from spotipy.cache_handler import CacheHandler
 
 class StreamlitSessionCacheHandler(CacheHandler):
