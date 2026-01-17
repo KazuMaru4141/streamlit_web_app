@@ -536,10 +536,10 @@ auth_manager, spotify = sp.create_spotify()
 query_params = st.query_params
 if "code" in query_params:
     auth_manager.get_access_token(query_params["code"])
-    # 認証後にURLを綺麗にする（任意。リダイレクトが発生します）
-    # st.query_params.clear()
+    # 認証後にURLを綺麗にする（これをしないとリロード時に再度コード処理が走りエラーになることがあります）
+    st.query_params.clear()
 
-# 認証済みか、有効なトークンがあるかチェック
+# 有効なトークンがあるかチェック
 token_info = auth_manager.validate_token(auth_manager.cache_handler.get_cached_token())
 
 if not token_info:
