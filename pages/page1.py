@@ -17,7 +17,12 @@ import spotipy.util as util
 from spotipy.oauth2 import SpotifyClientCredentials
 from spotipy.oauth2 import SpotifyOAuth
 
+# モジュールを強制的にリロード
+import importlib
+import SpotifyAPI
+importlib.reload(SpotifyAPI)
 from SpotifyAPI import SpotifyCtrl
+
 from spotify_auth import get_auth_manager
 
 import datetime
@@ -315,8 +320,8 @@ def onclickAddToQueue(trackUri, trackName):
         trackUri (str): トラックURI
         trackName (str): トラック名
     """
-    # if sp.add_track_to_queue(spotify, trackUri):
-    #     st.toast(f"Queued: {trackName}", icon="➕")
+    if sp.add_track_to_queue(spotify, trackUri):
+        st.toast(f"Queued: {trackName}", icon="➕")
 
 def readSpreadSheet(st):
     """
@@ -534,7 +539,7 @@ def display_album_info(st):
                 c1.write(str(cnt))
                 c2.write(trackname)
                 c3.write(disp)
-                # c4.button("➕", key=f"q_{trackid}", on_click=onclickAddToQueue, args=(trackuri, trackname))
+                c4.button("➕", key=f"q_{trackid}", on_click=onclickAddToQueue, args=(trackuri, trackname))
                 cnt += 1
             
             st.write(f'total point {album_rate}')
