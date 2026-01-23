@@ -451,14 +451,14 @@ def display_track_info(st):
                 st.session_state.trackInfo["trackID"],
                 "",
                 st.session_state.trackInfo["trackURL"],
-                str(2),
+                str(3),
                 st.session_state.trackInfo["albumID"],
             ])
             st.session_state.ws.append_rows(appendList)
             
             cell = st.session_state.ws.find(st.session_state.trackInfo["trackID"])
             row = int(cell.row)
-            current_rate = 2
+            current_rate = 3
         
         # 評価の表示と取得（共通処理）
         rate = st.radio("Rate", 
