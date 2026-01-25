@@ -1,0 +1,103 @@
+name: DeepDive Music Curator
+
+on:
+  # Schedule: Run every Monday at 9:00 AM JST (00:00 UTC)
+  schedule:
+    - cron: '0 0 * * 1'
+  
+  # Allow manual trigger
+  workflow_dispatch:
+    inputs:
+      genre:
+        description: 'Music genre'
+        required: true
+        default: 'DeepDive_PowerPop'
+        type: choice
+        options:
+          - DeepDive_PowerPop
+          - DeepDive_MellowPop
+          - DeepDive_BeautifulEmo
+          - DeepDive_Dance
+          - DeepDive_JanglePop
+          - DeepDive_IndieRock
+          - DeepDive_MelodicDeathMetal
+          - DeepDive_IndiePop
+          - DeepDive_PopPunk
+          - DeepDive_MelodicHardcore
+          - DeepDive_ThrashMetal
+      melancholy:
+        description: 'Melancholy level (0-100)'
+        required: false
+        default: '50'
+      energy:
+        description: 'Energy level (0-100)'
+        required: false
+        default: '50'
+      obscurity:
+        description: 'Obscurity level (0-100)'
+        required: false
+        default: '50'
+      deep_dive:
+        description: 'Deep dive mode (exclude mainstream)'
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  generate_recommendations:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+      
+      - name: Generate music recommendations
+        env:
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+          SPOTIFY_CLIENT_ID: ${{ secrets.SPOTIFY_CLIENT_ID }}
+          SPOTIFY_CLIENT_SECRET: ${{ secrets.SPOTIFY_CLIENT_SECRET }}
+          SPOTIFY_REFRESH_TOKEN: ${{ secrets.SPOTIFY_REFRESH_TOKEN }}
+        run: |
+          # Set default values for scheduled runs
+          GENRE="${{ github.event.inputs.genre || 'DeepDive_PowerPop' }}"
+          MELANCHOLY="${{ github.event.inputs.melancholy || '50' }}"
+          ENERGY="${{ github.event.inputs.energy || '50' }}"
+          OBSCURITY="${{ github.event.inputs.obscurity || '50' }}"
+          DEEP_DIVE="${{ github.event.inputs.deep_dive || 'false' }}"
+          
+          # Build command
+          CMD="python DeepDive_Music_Curator.py --genre $GENRE --melancholy $MELANCHOLY --energy $ENERGY --obscurity $OBSCURITY --save recommendations_$(date +%Y%m%d_%H%M%S).json"
+          
+          if [ "$DEEP_DIVE" = "true" ]; then
+            CMD="$CMD --deep-dive"
+          fi
+          
+          echo "Running: $CMD"
+          eval $CMD
+      
+      - name: Upload recommendations
+        uses: actions/upload-artifact@v4
+        with:
+          name: music-recommendations-${{ github.run_number }}
+          path: recommendations_*.json
+          retention-days: 30
+      
+      - name: Display results
+        run: |
+          echo "## 🎵 Music Recommendations Generated!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Genre: ${{ github.event.inputs.genre || 'DeepDive_PowerPop' }}" >> $GITHUB_STEP_SUMMARY
+          echo "Timestamp: $(date)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Download the artifact to see full recommendations." >> $GITHUB_STEP_SUMMARY
