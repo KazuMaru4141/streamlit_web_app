@@ -53,6 +53,7 @@ st.sidebar.markdown("---")
 st.sidebar.markdown("🏠 [main app](/)")
 st.sidebar.markdown("📊 [Dashboard](/0_Dashboard)")
 st.sidebar.markdown("🎵 [page1](/page1)")
+st.sidebar.markdown("🎧 [DeepDive Music Curator](/1_DeepDive_Music_Curator)")
 st.sidebar.markdown("---")
 
 sp = SpotifyCtrl
